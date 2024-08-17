@@ -1,0 +1,505 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <title>Fifth deal.II Users and Developers Workshop</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link rel="icon" href="/favicon.ico"/>
+    <link rel="apple-touch-icon" href="/pictures/clover57.png"/>
+    <meta name="author" content="the deal.II authors"/>
+    <meta name="keywords" content="users, developers, workshop"/>
+    <meta name="robots" content="index, follow">
+
+    <!-- Include stylesheets -->
+    <link href="css/bootstrap.min.css" type="text/css" rel="stylesheet"/>
+    <link href="css/global.less" type="text/less" rel="stylesheet"/>
+    <link href="css/index.less" type="text/less" rel="stylesheet"/>
+
+    <!-- LESS needs to come after the stylesheets -->
+    <script src="js/less-1.4.1.min.js"></script>
+  </head>
+
+  <body>
+    <!--#include file="header.include" -->
+
+    <div id="content" class="container">
+
+      <h1 align="center">Fifth deal.II Users and Developers Workshop</h1>
+      <h3 align="center">
+        Texas A&amp;M University,
+        College Station, TX, USA;
+        &nbsp;
+        August 3-7, 2015
+      </h3>
+
+
+      <div id="content" class="container">
+        <div class="container">
+          <div class="well">
+
+            <h3>Program and schedule</h3>
+
+            <p>
+              In the following, talk titles link to the PDFs of the
+              talk if available.
+            </p>
+
+            <table align="center">
+              <tr>
+                <td colspan=3>
+                  <i>Monday, August 3, 2015</i>
+                </td>
+              </tr>
+
+              <tr>
+                <td valign="top" width="15%">8:15-9:00</td>
+                <td valign="top">Registration</td>
+                <td valign="top">Blocker 220</td>
+              </tr>
+
+              <tr>
+                <td valign="top" width="15%">9:00-9:30</td>
+                <td valign="top">Wolfgang Bangerth</td>
+                <td valign="top"><a href="slides/bangerth-1.pdf">Welcome remarks. Past and
+                  future of deal.II</a></td>
+              </tr>
+
+              <tr>
+                <td valign="top" width="15%">9:30-10:15</td>
+                <td valign="top">Matthias Maier</td>
+                <td valign="top"><a href="slides/maier.pdf"><b>Keynote:</b> New features in deal.II</a></td>
+              </tr>
+
+              <tr>
+                <td valign="top" width="15%">10:15-10:45</td>
+                <td valign="top"></td>
+                <td valign="top"><a href="#lightning">Lightning talks</a></td>
+              </tr>
+
+              <tr>
+                <td valign="top" width="15%">10:45-11:15</td>
+                <td valign="top"></td>
+                <td valign="top">Coffee</td>
+              </tr>
+
+              <tr>
+                <td valign="top" width="15%">11:15-12:00</td>
+                <td valign="top"></td>
+                <td valign="top"><a href="#lightning">Lightning talks</a></td>
+              </tr>
+
+              <tr>
+                <td valign="top" width="15%">12:00-12:30</td>
+                <td valign="top"></td>
+                <td valign="top">Play time</td>
+              </tr>
+
+              <tr>
+                <td valign="top" width="15%">12:30-13:30</td>
+                <td valign="top"></td>
+                <td valign="top">Lunch</td>
+              </tr>
+
+              <tr>
+                <td valign="top" width="15%">13:30-14:00</td>
+                <td valign="top">Juliane Dannberg</td>
+                <td valign="top"><a href="slides/dannberg.pdf">Application
+                of deal.II in ASPECT: 3D Compressible Melt Transport
+                with Mesh Adaptivity</a>
+		  (<a href="slides/dannberg-plume_compressible.mp4">movie 1</a>,
+		  (<a href="slides/dannberg-shear_bands.avi">movie 2</a>,
+		  (<a href="slides/dannberg-shear_bands_3d.avi">movie 3</a>)
+		</td>
+              </tr>
+
+              <tr>
+                <td valign="top" width="15%">14:00-15:30</td>
+                <td valign="top">Wolfgang Bangerth</td>
+                <td valign="top"><a href="slides/bangerth-2.pdf">Planning for the future: Getting
+                deal.II development funded</a></td>
+              </tr>
+
+              <tr>
+                <td valign="top" width="15%">15:30-16:00</td>
+                <td valign="top"></td>
+                <td valign="top">Coffee</td>
+              </tr>
+
+              <tr>
+                <td valign="top" width="15%">16:00-16:30</td>
+                <td valign="top">Wolfgang Bangerth</td>
+                <td valign="top">Planning for the future: Supporting
+                integrated development environments (IDE)</td>
+              </tr>
+
+              <tr>
+                <td valign="top" width="15%">16:30-18:00</td>
+                <td valign="top"></td>
+                <td valign="top">Play time</td>
+              </tr>
+
+
+
+              <tr>
+                <td colspan=3 align="center">
+                  <hr size="10">
+                </td>
+              </tr>
+
+              <tr>
+                <td colspan=3>
+                  <i>Tuesday, August 4, 2015</i>
+                </td>
+              </tr>
+
+              <tr>
+                <td valign="top" width="15%">9:00-9:45</td>
+                <td valign="top">Andrew McBride</td>
+                <td valign="top"><a href="slides/mcbride.pdf"><b>Keynote:</b> Applications in solid mechanics</a></td>
+              </tr>
+
+              <tr>
+                <td valign="top" width="15%">9:45-10:15</td>
+                <td valign="top">Damien Lebrun-Grandie</td>
+                <td valign="top">Modeling of electrical, electrochemical and thermal processes in supercapacitors and related issues using deal.ii</td>
+              </tr>
+
+              <tr>
+                <td valign="top" width="15%">10:15-10:45</td>
+                <td valign="top"></td>
+                <td valign="top"><a href="#lightning">Lightning talks</a></td>
+              </tr>
+
+              <tr>
+                <td valign="top" width="15%">10:45-11:15</td>
+                <td valign="top"></td>
+                <td valign="top">Coffee</td>
+              </tr>
+
+              <tr>
+                <td valign="top" width="15%">11:15-12:30</td>
+                <td valign="top">Wolfgang Bangerth</td>
+                <td valign="top"><a href="slides/bangerth-3.pdf">Demonstration: Writing and
+                submitting patches</a></td>
+              </tr>
+
+              <tr>
+                <td valign="top" width="15%">12:30-13:30</td>
+                <td valign="top"></td>
+                <td valign="top">Lunch</td>
+              </tr>
+
+              <tr>
+                <td valign="top" width="15%">13:30-14:00</td>
+                <td valign="top">Lukas Korous</td>
+                <td valign="top"><a href="slides/korous.pdf">Agros2D - engineering tool based on DealII</a></td>
+              </tr>
+
+              <tr>
+                <td valign="top" width="15%">14:00-15:30</td>
+                <td valign="top"></td>
+                <td valign="top">Planning for the future: deal.II on Windows</td>
+              </tr>
+
+              <tr>
+                <td valign="top" width="15%">15:30-16:00</td>
+                <td valign="top"></td>
+                <td valign="top">Coffee</td>
+              </tr>
+
+              <tr>
+                <td valign="top" width="15%">16:00-18:00</td>
+                <td valign="top"></td>
+                <td valign="top">Play time</td>
+              </tr>
+
+
+
+              <tr>
+                <td colspan=3 align="center">
+                  <hr size="10">
+                </td>
+              </tr>
+
+              <tr>
+                <td colspan=3>
+                  <i>Wednesday, August 5, 2015</i>
+                </td>
+              </tr>
+
+              <tr>
+                <td valign="top" width="15%">9:00-9:45</td>
+                <td valign="top">Bruno Turcksin</td>
+                <td valign="top"><a href="slides/turcksin.pdf"><b>Keynote:</b> deal.II on a node</a></td>
+              </tr>
+
+              <tr>
+                <td valign="top" width="15%">9:45-10:15</td>
+                <td valign="top">Daniel Arndt</td>
+                <td valign="top"><a href="slides/arndt.pdf">Application to the Thermally Coupled Navier-Stokes Problem in Rotating Frames of Reference and MHD</a></td>
+              </tr>
+
+              <tr>
+                <td valign="top" width="15%">10:15-10:45</td>
+                <td valign="top">Lei Qiao</td>
+                <td valign="top"><a href="slides/lei.pdf">Compressible Navier-Stokes (Euler) Solver based on Deal.II Library</a></td>
+              </tr>
+
+              <tr>
+                <td valign="top" width="15%">10:45-11:15</td>
+                <td valign="top"></td>
+                <td valign="top">Coffee</td>
+              </tr>
+
+              <tr>
+                <td valign="top" width="15%">11:15-11:45</td>
+                <td valign="top">David Wells</td>
+                <td valign="top"><a href="slides/wells.pdf">Stabilization of POD-ROMs</a></td>
+              </tr>
+
+              <tr>
+                <td valign="top" width="15%">11:45-12:30</td>
+                <td valign="top">Matthias Maier</td>
+                <td valign="top">Planning for the future: Packaging
+                deal.II for (Linux) distributions (and other
+                operating systems)</td>
+              </tr>
+
+              <tr>
+                <td valign="top" width="15%">12:30-13:30</td>
+                <td valign="top"></td>
+                <td valign="top">Lunch</td>
+              </tr>
+
+
+              <tr>
+                <td valign="top" width="15%">13:30-14:15</td>
+                <td valign="top">Timo Heister</td>
+                <td valign="top"><a href="slides/heister.pdf"><b>Keynote:</b> Parallel computations</a></td>
+              </tr>
+
+              <tr>
+                <td valign="top" width="15%">14:15-15:30</td>
+                <td valign="top"></td>
+                <td valign="top">Planning for the future: Parallel
+                  linear algebra</td>
+              </tr>
+
+              <tr>
+                <td valign="top" width="15%">15:30-16:00</td>
+                <td valign="top"></td>
+                <td valign="top">Coffee</td>
+              </tr>
+
+              <tr>
+                <td valign="top" width="15%">16:00-18:00</td>
+                <td valign="top"></td>
+                <td valign="top">Play time</td>
+              </tr>
+
+
+
+              <tr>
+                <td colspan=3 align="center">
+                  <hr size="10">
+                </td>
+              </tr>
+
+              <tr>
+                <td colspan=3>
+                  <i>Thursday, August 6, 2015</i>
+                </td>
+              </tr>
+
+              <tr>
+                <td valign="top" width="15%">9:00-9:45</td>
+                <td valign="top">Denis Davydov</td>
+                <td valign="top"><a href="slides/davydov.pdf"><b>Keynote:</b> On the adaptive finite element analysis of the Kohn-Sham equations</a></td>
+              </tr>
+
+              <tr>
+                <td valign="top" width="15%">9:45-10:15</td>
+                <td valign="top">Jose Pablo Lucero Loca</td>
+                <td valign="top"><a href="slides/lucero.pdf">Multigrid discontinuous Galerkin method for multigroup particle transport</a></td>
+              </tr>
+
+              <tr>
+                <td valign="top" width="15%">10:15-10:45</td>
+                <td valign="top">Josh Hansel</td>
+                <td valign="top"><a href="slides/hansel.pdf">A positivity-preserving flux-corrected transport scheme for solving scalar conservation law problems</a></td>
+              </tr>
+
+              <tr>
+                <td valign="top" width="15%">10:45-11:15</td>
+                <td valign="top"></td>
+                <td valign="top">Coffee</td>
+              </tr>
+
+              <tr>
+                <td valign="top" width="15%">11:15-12:30</td>
+                <td valign="top"></td>
+                <td valign="top">Play time</td>
+              </tr>
+
+              <tr>
+                <td valign="top" width="15%">12:30-13:30</td>
+                <td valign="top"></td>
+                <td valign="top">Lunch</td>
+              </tr>
+
+
+              <tr>
+                <td valign="top" width="15%">13:30-14:00</td>
+                <td valign="top">Jason Sheldon</td>
+                <td valign="top"><a href="slides/sheldon.pdf">Hybridizable discontinuous Galerkin methods for modeling fluid-structure interaction</a></td>
+              </tr>
+
+              <tr>
+                <td valign="top" width="15%">14:00-14:30</td>
+                <td valign="top">Arezou Ghesmati</td>
+                <td valign="top"><a href="slides/ghesmati.pdf">A Residual Based A Posteriori Error Estimation in hp- Adaptive FEM for Stokes Model Problem</a></td>
+              </tr>
+
+              <tr>
+                <td valign="top" width="15%">14:30-15:30</td>
+                <td valign="top"></td>
+                <td valign="top">Play time</td>
+              </tr>
+
+              <tr>
+                <td valign="top" width="15%">15:30-16:00</td>
+                <td valign="top"></td>
+                <td valign="top">Coffee</td>
+              </tr>
+
+              <tr>
+                <td valign="top" width="15%">16:00-18:00</td>
+                <td valign="top"></td>
+                <td valign="top">Play time</td>
+              </tr>
+
+
+              <tr>
+                <td valign="top" width="15%">19:00-??</td>
+                <td valign="top"></td>
+                <td valign="top">Conference dinner at
+                <a href="http://cafeeccellbryantx.com/">Cafe Eccel</a>, which is
+                located <a href="http://cafeeccellbryantx.com/contact/">here</a>.</td> 
+              </tr>
+
+              <tr>
+                <td colspan=3 align="center">
+                  <hr size="10">
+                </td>
+              </tr>
+
+              <tr>
+                <td colspan=3>
+                  <i>Friday, August 7, 2015</i>
+                </td>
+              </tr>
+
+              <tr>
+                <td valign="top" width="15%">9:00-9:30</td>
+                <td valign="top">Hung-Chieh Chu</td>
+                <td valign="top"><a href="slides/chu.pdf">Application of the Fictitious Domain
+                method to flow problems with complex geometries</a></td>
+              </tr>
+
+              <tr>
+                <td valign="top" width="15%">9:30-10:00</td>
+                <td valign="top">Mallikarjunaiah Muddamallappa</td>
+                <td valign="top"><a href="slides/muddamallappa.pdf">On a Nonlocal Finite Element Formulation of Mode-III Brittle Fracture with Surface Tension Excess Property</a></td>
+              </tr>
+
+              <tr>
+                <td valign="top" width="15%">10:00-10:45</td>
+                <td valign="top"></td>
+                <td valign="top">Play time</td>
+              </tr>
+
+              <tr>
+                <td valign="top" width="15%">10:45-11:15</td>
+                <td valign="top"></td>
+                <td valign="top">Coffee</td>
+              </tr>
+
+              <tr>
+                <td valign="top" width="15%">11:15-12:30</td>
+                <td valign="top"></td>
+                <td valign="top">Play time</td>
+              </tr>
+
+              <tr>
+                <td valign="top" width="15%">12:30-13:30</td>
+                <td valign="top"></td>
+                <td valign="top">Lunch</td>
+              </tr>
+
+              <tr>
+                <td valign="top" width="15%">13:30-15:30</td>
+                <td valign="top"></td>
+                <td valign="top">Play time</td>
+              </tr>
+
+              <tr>
+                <td valign="top" width="15%">15:30-16:00</td>
+                <td valign="top"></td>
+                <td valign="top">Coffee</td>
+              </tr>
+
+              <tr>
+                <td valign="top" width="15%">16:00-17:30</td>
+                <td valign="top"></td>
+                <td valign="top">Play time</td>
+              </tr>
+
+              <tr>
+                <td valign="top" width="15%">17:30-18:00</td>
+                <td valign="top">Wolfgang Bangerth</td>
+                <td valign="top">Closing remarks</td>
+              </tr>
+
+            </table>
+          </div>
+
+          <div class="well" id="lightning">
+            <h6>Links to slides from the lightning talks</h6>
+
+            <p>
+              <a href="slides/lightning-talks/bentley.pdf">Alistair Bentley</a>,
+              <a href="slides/lightning-talks/grove.pdf">Ryan Grove</a>,
+              <a href="slides/lightning-talks/harmon.pdf">Michael Harmon</a>,
+              <a href="slides/lightning-talks/harry.pdf">Dennis Harry</a>,
+              <a href="slides/lightning-talks/hineman.pdf">Jay Hineman</a>,
+              <a href="slides/lightning-talks/kaurov.pdf">Sasha Kaurov</a>,
+              <a href="slides/lightning-talks/kim.pdf">Imbunm Kim</a>,
+              <a href="slides/lightning-talks/lei.pdf">Wenyu Lei</a>,
+              <a href="slides/lightning-talks/nama.pdf">Nitesh Nama</a>,
+              <a href="slides/lightning-talks/na.pdf">SeonHong Na</a>,
+              <a href="slides/lightning-talks/patty.pdf">Spencer Patty</a>,
+              <a href="slides/lightning-talks/pelteret.pdf">Jean-Paul Pelteret</a>,
+              <a href="slides/lightning-talks/pino.pdf">Ariel Ibarra Pino</a>,
+              <a href="slides/lightning-talks/polster.pdf">Lisa Polster</a>,
+              <a href="slides/lightning-talks/safin.pdf">Artur Safin</a>,
+              <a href="slides/lightning-talks/sen.pdf">Krishanu Sen</a>,
+              <a href="slides/lightning-talks/tao.pdf">Zhen Tao</a>,
+              <a href="slides/lightning-talks/yang.pdf">Yong Yang</a>,
+              <a href="slides/lightning-talks/yim.pdf">Jaeryun Yim</a>,
+              <a href="slides/lightning-talks/yu.pdf">Jian Yu</a>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!--#include file="footer.include" -->
+
+    </div>
+
+  </body>
+  <!-- Some JQuery needs to come after the body -->
+  <script src="js/jquery.min.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <script src="js/accordion.js"></script>
+</html>

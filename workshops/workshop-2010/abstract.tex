@@ -1,0 +1,44 @@
+% Abstract sample for deal.II Workshop in Heidelberg
+
+
+\documentclass[12pt,twopage]{book}
+\usepackage{a4wide}
+\usepackage[latin1]{inputenc}
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+\usepackage{amsmath}
+
+\parindent0em
+\parskip2ex plus0.5ex minus0.5ex
+
+\pagestyle{fancy} 
+\fancyhead[LE,RO]{\thepage}
+\fancyhead[LO,RE]{}
+\renewcommand{\headrulewidth}{0pt}
+
+\fancyfoot[c]{\protect\scriptsize
+deal.II Workshop, 
+Heidelberg, August 23-25, 2009}
+
+\newcommand{\mysection}[1]{\section*{#1}
+\addcontentsline{toc}{section}{#1}
+\fancyhead[LO,RE]{#1}}
+
+\setcounter{tocdepth}{2}
+
+\begin{document}
+
+% -----------------------------------------------------------------------------
+
+\textbf{Here goes the title of your talk}
+\addcontentsline{toc}{subsection}{Thomas Wick}
+
+Surname Lastname , My Institute 
+
+
+Here goes the abstract of your talk...
+
+% -----------------------------------------------------------------------------
+
+
+\end{document}

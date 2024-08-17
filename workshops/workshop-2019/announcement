@@ -1,0 +1,37 @@
+Subject: deal.II User and Developer Workshop: August 6-9, 2019
+
+Dear deal.II users and developers,
+
+The
+   Seventh deal.II Users' and Developers' workshop
+will be held August 6-9, 2019 in Fort Collins, Colorado, USA. The
+intent of this workshop is to discuss applications and tools using
+deal.II, as well as future directions of the library itself.
+
+We invite proposals for talks and discussion topics by users and
+existing developers in the following areas:
+ - Use cases and applications of the library.
+ - What users think would be useful directions for the library to go into,
+   things that are missing, and possibly getting people together who can help
+   implement those parts.
+ - Newer parts of the library (e.g., geometry descriptions, large parallel
+   computations, etc.) and how these could help in your programs.
+A significant part of the time will be set aside for "hackathon"- or "code
+jam"-style sessions where people can ask questions, work on their codes
+with others, and receive help from experienced users.
+
+Registration:
+For workshop and registration information, see
+  https://dealii.org/workshop-2019/
+  
+Deadline for registration: May 5, 2019. Participation is capped at
+around 60.
+
+Travel support: A limited amount of (domestic) travel support is available
+courtesy of the National Science Foundation, and will be given on a first come
+first serve basis, with preference to undergraduate and graduate students. If
+you need support, please state so in your registration.
+
+The organizers
+  Wolfgang Bangerth (Colorado State University, bangerth@colostate.edu)
+  Timo Heister (University of Utah, heister@sci.utah.edu)

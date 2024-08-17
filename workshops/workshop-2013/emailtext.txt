@@ -1,0 +1,90 @@
+Dear deal.II users and developers,
+
+following successful workshops in Germany in 2006, 2010 and 2012,
+we will host the fourth deal.II workshop in College Station, TX.
+We hope you will be able to join us! Place read the announcement below.
+
+Markus Buerg, Timo Heister, Matthias Maier, Wolfgang Bangerth
+
+===================================================================
+deal.II Mailingliste
+--------------------------------------------------------------------
+Dear deal.II users and developers,
+
+the fourth deal.II users' and developers' workshop will be held
+August 19-22 in College Station, TX. The intent of this workshop
+is to discuss applications and tools using deal.II, as well as
+future directions of the library itself.
+
+We invite talks and plan discussions by users and existing
+developers in the following areas:
+ - use cases and applications of the library
+ - what users think would be useful directions for the library
+   to go into, things that are missing, and possibly getting
+   people together who can help implement those parts
+ - newer parts of the library (e.g., cmake, large parallel
+   computations, etc.) and how these could help in your programs.
+The workshop will also have several "code jam" sessions where people
+can ask questions, work on their codes together, and receive help
+from experienced users.
+
+Registration:
+Please register via an informal email to buerg@math.tamu.edu
+and include the following information:
+- your full name
+- your address and institution
+- whether you would like to present a talk (please do so)
+- whether you will need travel support (see below)
+
+Deadline for registration: June 30, 2013.
+
+Travel support:
+A limited amount of (domestic) travel support is available courtesy of
+the National Science Foundation, and will be given on a first come first
+serve basis to those presenting a talk on their work, with preference to
+undergraduate and graduate students. If you need support, please
+state so in your registration.
+
+Further information:
+  http://www.dealii.org/workshop-2013/
+
+
+
+The organizers
+  Markus Buerg (Texas A&M University)
+  Timo Heister (Texas A&M University)
+  Matthias Maier (Heidelberg University)
+  Wolfgang Bangerth (Texas A&M University)
+
+===================================================================
+NA Digest
+--------------------------------------------------------------------
+          4th deal.II Users' and Developers' Workshop
+                 College Station, TX, USA
+                    August 19-22, 2013
+
+deal.II is a widely used and flexible open source Finite Element
+library featuring hp-methods, various finite element spaces,
+multigrid, support for massively parallel computations, and more.
+
+The aim and scope of this workshop is to present applications and
+tools using deal.II, teach new and advanced features of the
+library, and to discuss future directions for the library itself.
+We welcome new users of the deal.II library to join us.
+
+Conference website including registration information:
+   http://www.dealii.org/workshop-2013/
+
+Deadline for registration: June 30, 2013
+
+Support: A limited amount of domestic travel support is available
+courtesy of the National Science Foundation. Please refer to the
+website for more information.
+
+To learn more about deal.II: http://www.dealii.org/
+
+The organizers
+  Markus Buerg (Texas A&M University)
+  Timo Heister (Texas A&M University)
+  Matthias Maier (Heidelberg University)
+  Wolfgang Bangerth (Texas A&M University)

@@ -1,0 +1,33 @@
+Dear deal.II users and developers,
+
+The Fifth 
+    deal.II Users' and Developers' workshop
+will be held August 3-7, 2015 in College Station, TX. The intent of this
+workshop is to discuss applications and tools using deal.II, as well as future
+directions of the library itself.
+
+We invite talks and plan discussions by users and existing developers in the
+following areas:
+ - use cases and applications of the library
+ - what users think would be useful directions for the library to go into,
+   things that are missing, and possibly getting people together who can help
+   implement those parts
+ - newer parts of the library (e.g., cmake, large parallel
+   computations, etc.) and how these could help in your programs.
+A significant part of the time will be set aside for "hackathon"- or "code
+jam"-style sessions where people can ask questions, work on their codes
+with others, and receive help from experienced users.
+
+Registration:
+For workshop and registration information, see
+  http://dealii.org/workshop-2015/index.html
+Deadline for registration: April 15, 2015.
+
+Travel support:
+A limited amount of (domestic) travel support is available courtesy of the
+National Science Foundation, and will be given on a first come first serve
+basis, with preference to undergraduate and graduate students. If you need
+support, please state so in your registration.
+
+The organizers
+  Wolfgang Bangerth, Bruno Turcksin, Kristy Delvo-Vela (Texas A&M University)

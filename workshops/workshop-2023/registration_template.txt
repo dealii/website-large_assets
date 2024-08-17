@@ -1,0 +1,12 @@
+First name: 
+Last name: 
+Affiliation (University name): 
+Institute (optional information): 
+Participation: online / in person: 
+Participation in deal.II crash course on Monday: yes/no 
+Participation in deal.II Workshop Mo-Wed: yes/no 
+Participation in deal.II Coding session: Wed-Fri: yes/no 
+Participation in conference dinner (Tue evening): yes/no 
+Dietary restrictions/preferences: vegan, vegetarian, allergies, none 
+Interested in giving a talk: yes/no 
+  if yes, please attach *.pdf of abstract and source (*.tex) files to this email.

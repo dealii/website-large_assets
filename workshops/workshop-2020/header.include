@@ -1,0 +1,121 @@
+    <div class="navbar navbar-fixed-top navbar-dealii" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="http://www.dealii.org">
+          <img src="/pictures/clover57.png"
+           height="20"
+           alt="dealii logo"> dealii.org</a>
+        </div>
+
+        <div class="collapse navbar-collapse navbar-collapse">
+          <ul class="nav navbar-nav">
+            <li class="active">
+              <a href="/news.html">News</a>
+            </li>
+
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Help<b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li><a href="https://github.com/dealii/dealii/wiki/Frequently-Asked-Questions">FAQ</a></li>
+                <li><a href="/mail.html">Mailing lists</a></li>
+                <li><a href="http://www.math.colostate.edu/~bangerth/videos.html">Wolfgang's Lectures</a></li>
+                <li><a href="https://github.com/dealii/dealii/wiki">Wiki</a></li>
+                <li><a href="https://github.com/dealii/dealii/issues">Bug tracker</a></li>
+              </ul>
+            </li>
+
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Info<b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li><a href="/about.html">About</a></li>
+                <li><a href="/download.html">Download</a></li>
+                <li><a href="/authors.html">Authors</a></li>
+                <li><a href="/participate.html">Participate!</a></li>
+                <li><a href="https://docs.google.com/forms/d/1K2nhtfGuf15Cdw6E4_nbPk82zS9-XNfuRqOjFBWkp7E/viewanalytics">Survey results</a></li>
+                <li><a href="/ideas.html">Project ideas</a></li>
+                <li><a href="/developer/">Development</a></li>
+                <li><hr></li>
+                <li><a href="/publications.html">Publications</a></li>
+                <li><a href="/reports.html">Reports</a></li>
+                <li><hr></li>
+                <li><a href="/funding.html">Funding</a></li>
+                <li><a href="https://github.com/dealii/dealii/blob/master/LICENSE.md">License</a></li>
+              </ul>
+            </li>
+
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">9.0<b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li><div class="dropdown-menu-header"><abbr>deal.II</abbr> release</div></li>
+                <li><hr></li>
+                <li><a href="/current/readme.html">README</a></li>
+                <li><a href="/download.html">Download</a></li>
+                <li><a href="/current/index.html">Documentation</a></li>
+                <li><a href="/current/doxygen/deal.II/Tutorial.html">Tutorials</a></li>
+                <li><a href="/current/doxygen/deal.II/index.html">Manual</a></li>
+                <li><a href="/current/doxygen/deal.II/changes_between_8_5_0_and_9_0_0.html">Changes in 9.0.0</a></li>
+              </ul>
+            </li>
+
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dev<b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li><div class="dropdown-menu-header">
+                Development sources</div></li>
+                <li><hr></li>
+                <li><a href="https://github.com/dealii/dealii">github repository</a></li>
+                <li><a href="https://www.dealii.org/developer/doxygen/deal.II/recent_changes.html">Recent changes</a></li>
+                <li><hr></li>
+                <li><a href="/developer/readme.html">README</a></li>
+                <li><a href="/download.html#svn">Download</a></li>
+                <li><a href="/developer/index.html">Documentation</a></li>
+                <li><a href="/developer/doxygen/deal.II/Tutorial.html">Tutorials</a></li>
+                <li><a href="https://dealii.org/developer/doxygen/deal.II/CodeGallery.html">Code gallery</a></li>
+                <li><a href="/developer/doxygen/deal.II/index.html">Manual</a></li>
+                <li><hr></li>
+                <li><a href="http://cdash.dealii.org/index.php?project=deal.II">Tests</a></li>
+                <li><a href="https://dealii.org/performance_tests/graphs/">Performance tests</a></li>
+                <li><a href="/developer/developers/testsuite.html">Testing info</a></li>
+              </ul>
+            </li>
+
+            <li class="dropdown hidden-xs">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">All versions<b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li><div class="dropdown-menu-header">
+                Documentation</div></li>
+                <li><a href="/developer/index.html">master</a></li>
+                <li><a href="/9.0.0/index.html">9.0.0</a></li>
+                <li><a href="/8.5.0/index.html">8.5.0</a></li>
+                <li><a href="/8.4.1/index.html">8.4.1</a></li>
+                <li><a href="/8.3.0/index.html">8.3.0</a></li>
+                <li><a href="/8.2.1/index.html">8.2.1</a></li>
+                <li><a href="/8.2.0/index.html">8.2.0</a></li>
+                <li><a href="/8.1.0/index.html">8.1.0</a></li>
+                <li><a href="/8.0.0/index.html">8.0.0</a></li>
+              </ul>
+            </li>
+
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown">Applications<b class="caret"></b></a>
+              <ul class="dropdown-menu">
+                <li><a href="http://aspect.dealii.org/">Aspect</a></li>
+                <li><a href="http://github.com/SlaybaughLab/BART/">Bay Area Radiation Transport</a></li>
+                <li><a href="https://sites.google.com/umich.edu/dftfe">DFT-FE</a></li>
+                <li><a href="http://www.dopelib.net/">DOpElib</a></li>
+                <li><a href="http://www.openfcst.mece.ualberta.ca/">OpenFCST</a></li>
+                <li><a href="http://github.com/mathLab/pi-DoMUS">pi-DoMUS</a></li>
+                <li><a href="http://www.prisms-center.org/#/ctools/software">PRISMS</a></li>
+                <li><hr></li>
+                <li><a href="http://www.dealii.org/code-gallery.html">Code Gallery</a></li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>

@@ -1,0 +1,205 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <title>Seventh deal.II Users and Developers Workshop</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link rel="icon" href="/favicon.ico"/>
+    <link rel="apple-touch-icon" href="/pictures/clover57.png"/>
+    <meta name="author" content="the deal.II authors"/>
+    <meta name="keywords" content="users, developers, workshop"/>
+    <meta name="robots" content="index, follow">
+
+    <!-- Include stylesheets -->
+    <link href="css/bootstrap.min.css" type="text/css" rel="stylesheet"/>
+    <link href="css/global.less" type="text/less" rel="stylesheet"/>
+    <link href="css/index.less" type="text/less" rel="stylesheet"/>
+
+    <!-- LESS needs to come after the stylesheets -->
+    <script src="js/less-1.4.1.min.js"></script>
+  </head>
+
+  <body>
+    <!--#include file="header.include" -->
+
+    <div id="content" class="container">
+
+      <h1 align="center">Seventh deal.II Users and Developers Workshop</h1>
+      <h3 align="center">
+	Colorado State University,
+        Fort Collins, CO, USA;
+	&nbsp;
+        August 6-9, 2019
+      </h3>
+
+
+      <div id="content" class="container">
+        <div class="container">
+          <div class="well">
+
+            <h3>Program and schedule</h3>
+
+	    <a href="https://drive.google.com/drive/folders/1ePV1nHEo0PdKHhDILZbBJdl-CJ93DRLa?usp=sharing">Folder with slides and other documents</a>
+
+	    <br/>
+	    
+            <p>
+              The program is a mixture of scheduled talks,
+              pop-up talks on topics of interest, and plenty of time
+              to work on projects of your in small groups surrounded
+              by others working on similar questions. We found that
+              this works better than spending 6 or 7 hours listening
+              to talks every day. The principal focus of the workshop
+              is to make connections to others and to be productive
+              with your projects.
+            </p>
+
+            <p>
+              We will meet every day at 9am, have lunch at 12 noon,
+              and reconvene 1:30 to 5pm. You can stay essentially as
+              long after that if you feel like you continue to be
+              productive.
+            </p>
+
+            <p>
+              At the moment, we have scheduled the following talks (we
+              try to remain flexible and may move talks as useful;
+              time not allocated for talks is used for group work):
+            </p>
+
+            <p>
+              <dl>
+                <dt>Tuesday</dt>
+                <dd>
+                  <table class="table table-striped table-bordered">
+                    <tr>
+                      <th width="10%">9am</th>
+                      <td>Wolfgang Bangerth: Welcome and introduction</td>
+                    </tr>
+
+                    <tr>
+                      <th width="10%">9:30am</th>
+                      <td>David Wells: git, github, workflows for
+                        contributing to deal.II</td>
+                    </tr>
+
+                    <tr>
+                      <th width="10%">10:30am</th>
+                      <td>Everyone: 1-slide introductions</td>
+                    </tr>
+
+                    <tr>
+                      <th width="10%">1:30pm</th>
+                      <td>Timo Heister, Wolfgang Bangerth: Ideas for
+                        starter projects and good first pull requests</td>
+                    </tr>
+
+                    <tr>
+                      <th width="10%">3:30pm</th>
+                      <td>Luca Heltai: Generation and Manipulation of
+                      complex geometries: an example workflow</td>
+                    </tr>
+                  </table>
+                </dd>
+              </dl>
+
+              <dl>
+                <dt>Wednesday</dt>
+                <dd>
+                  <table class="table table-striped table-bordered">
+                    <tr>
+                      <th width="10%">9am</th>
+                      <td>Marc Fehling: Parallel hp adaptivity</td>
+                    </tr>
+
+                    <tr>
+                      <th width="10%">10am</th>
+                      <td>Conrad Clevenger: Parallel multigrid</td>
+                    </tr>
+
+                    <tr>
+                      <th width="10%">1:30pm</th>
+                      <td>Zhuoran Wang: The Weak Galerkin (WG) method and step-61</td>
+                    </tr>
+
+                    <tr>
+                      <th width="10%">2pm</th>
+                      <td>Graham Harper: Developing a new element using
+                        the Bernardi-Raugel element as an example</td>
+                    </tr>
+
+                    <tr>
+                      <th width="10%">2:30pm</th>
+                      <td>Natasha Sharma: C0 Interior Penalty Method for fourth order elliptic problem using deal.II</td>
+                    </tr>
+                  </table>
+                </dd>
+              </dl>
+
+              <dl>
+                <dt>Thursday</dt>
+                <dd>
+                  <table class="table table-striped table-bordered">
+                    <tr>
+                      <th width="10%">9am</th>
+                      <td>Daniel Garcia: Quantum computing device design using Finite Elements</td>
+                    </tr>
+
+
+                    <tr>
+                      <th width="10%">10am</th>
+                      <td>Peter Munch: Efficient, large-scale simulations on complex geometries with deal.II - using a hybrid multigrid solver and a fully distributed triangulation</td>
+                    </tr>
+
+                    <tr>
+                      <th width="10%">1:30pm</th>
+                      <td>Daniel Arndt: Algebraic Multigrid Preconditioner for Matrix-Free Discretization</td>
+                    </tr>
+
+                    <tr>
+                      <th width="10%">2:15pm</th>
+                      <td>Bruno Blais: High order stabilized solvers
+                      for the Navier-Stokes equations</td>
+                    </tr>
+                  </table>
+                </dd>
+              </dl>
+
+              <dl>
+                <dt>Friday</dt>
+                <dd>
+                  <table class="table table-striped table-bordered">
+                    <tr>
+                      <th width="10%">9am</th>
+                      <td>Rene Gassmoeller: Particle methods in deal.II</td>
+                    </tr>
+
+                    <tr>
+                      <th width="10%">1:30pm</th>
+                      <td>deal.II infrastructure session:
+                        <ul>
+                          <li>Matthias Maier: Packaging for distribution,
+                            the deal.II testsuite
+                          <li>Timo Heister: Continuous integration
+                        </ul>
+                      </td>
+                    </tr>
+                  </table>
+                </dd>
+              </dl>
+            </p>
+
+          </div>
+        </div>
+      </div>
+      <!--#include file="footer.include" -->
+
+    </div>
+
+  </body>
+  <!-- Some JQuery needs to come after the body -->
+  <script src="js/jquery.min.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <script src="js/accordion.js"></script>
+</html>
