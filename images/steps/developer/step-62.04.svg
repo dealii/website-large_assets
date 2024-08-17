@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 23.0.2, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 299.62 64.37" style="enable-background:new 0 0 299.62 64.37;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill:#A08157;stroke:#000000;stroke-width:0.5;stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:10;}
+	.st1{fill:#ACDD4B;stroke:#000000;stroke-width:0.5;stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:10;}
+	.st2{fill:none;stroke:#000000;stroke-width:0.5;stroke-linecap:square;stroke-linejoin:round;}
+	.st3{font-family:'MyriadPro-SemiCn';}
+	.st4{font-size:5px;}
+</style>
+<g id="Superlattice">
+	<rect x="144.41" y="16.12" class="st0" width="13.44" height="46.75"/>
+	<rect x="157.85" y="16.12" class="st1" width="7.22" height="46.75"/>
+	<rect x="165.07" y="16.12" class="st0" width="6.19" height="46.75"/>
+	<rect x="137.19" y="16.12" class="st1" width="7.22" height="46.75"/>
+	<rect x="131" y="16.12" class="st0" width="6.19" height="46.75"/>
+	<rect x="123.78" y="16.12" class="st1" width="7.22" height="46.75"/>
+	<rect x="117.6" y="16.12" class="st0" width="6.19" height="46.75"/>
+	<rect x="110.38" y="16.12" class="st1" width="7.22" height="46.75"/>
+	<rect x="104.19" y="16.12" class="st0" width="6.19" height="46.75"/>
+	<rect x="96.97" y="16.12" class="st1" width="7.22" height="46.75"/>
+	<rect x="3.84" y="16.12" class="st0" width="93.13" height="46.75"/>
+	<rect x="171.25" y="16.12" class="st1" width="7.22" height="46.75"/>
+	<rect x="178.47" y="16.12" class="st0" width="6.19" height="46.75"/>
+	<rect x="184.66" y="16.12" class="st1" width="7.22" height="46.75"/>
+	<rect x="191.88" y="16.12" class="st0" width="6.19" height="46.75"/>
+	<rect x="198.07" y="16.12" class="st1" width="7.22" height="46.75"/>
+</g>
+<g id="Guias">
+</g>
+<g id="Marcas">
+	<g>
+		<g>
+			<line class="st2" x1="159.63" y1="13.49" x2="203.52" y2="13.49"/>
+			<g>
+				<polygon points="157.86,13.49 160.35,14.51 159.76,13.49 160.35,12.47 				"/>
+			</g>
+			<g>
+				<polygon points="205.28,13.49 202.8,14.51 203.39,13.49 202.8,12.47 				"/>
+			</g>
+		</g>
+	</g>
+	<g>
+		<g>
+			<line class="st2" x1="98.74" y1="13.49" x2="142.63" y2="13.49"/>
+			<g>
+				<polygon points="96.97,13.49 99.46,14.51 98.87,13.49 99.46,12.47 				"/>
+			</g>
+			<g>
+				<polygon points="144.39,13.49 141.91,14.51 142.5,13.49 141.91,12.47 				"/>
+			</g>
+		</g>
+	</g>
+	<g>
+		<g>
+			<line class="st2" x1="146.21" y1="13.49" x2="156.08" y2="13.49"/>
+			<g>
+				<polygon points="144.44,13.49 146.93,14.51 146.34,13.49 146.93,12.47 				"/>
+			</g>
+			<g>
+				<polygon points="157.85,13.49 155.36,14.51 155.95,13.49 155.36,12.47 				"/>
+			</g>
+		</g>
+	</g>
+	<text transform="matrix(1 0 0 1 145.2526 10.8658)" class="st3 st4">Cavity</text>
+	<text transform="matrix(1 0 0 1 166.0744 5.8658)"><tspan x="0" y="0" class="st3 st4">Photonic/phononic</tspan><tspan x="12.59" y="6" class="st3 st4">mirror</tspan></text>
+	<text transform="matrix(1 0 0 1 98.9963 5.8658)"><tspan x="0" y="0" class="st3 st4">Photonic/phononic</tspan><tspan x="12.59" y="6" class="st3 st4">mirror</tspan></text>
+	
+		<rect x="205.28" y="16.12" transform="matrix(-1 -1.224647e-16 1.224647e-16 -1 503.7023 78.9816)" class="st0" width="93.13" height="46.75"/>
+</g>
+</svg>
