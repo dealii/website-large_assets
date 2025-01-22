@@ -1,0 +1,867 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<!--Converted with LaTeX2HTML 98.1p1 release (March 2nd, 1998)
+originally by Nikos Drakos (nikos@cbl.leeds.ac.uk), CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>No Title</TITLE>
+<META NAME="description" CONTENT="No Title">
+<META NAME="keywords" CONTENT="mapping">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<LINK REL="STYLESHEET" HREF="../../screen.css">
+<LINK REL="next" HREF="node1.html">
+</HEAD>
+<BODY >
+<p>
+In modified form taken from
+<br>
+<br>
+<a href="http://ganymed.iwr.uni-heidelberg.de/~hartmann/" target="_top">Ralf Hartmann</a>
+<br>
+Adaptive Finite Element Methods for the Compressible Euler Equations
+<br>
+PhD thesis, University of Heidelberg, 2002.
+</p>
+
+
+<P>
+<DIV ALIGN="CENTER">
+<FONT SIZE="+4"><B>Higher order Boundary approximation</B></FONT>
+
+</DIV>
+<P>
+<B>Introduction:</B> In many numerical applications the domain
+
+<!-- MATH: $\Omega\subset\mathbb R^d$ -->
+<IMG
+ WIDTH="61" HEIGHT="38" ALIGN="MIDDLE" BORDER="0"
+ SRC="img6.gif"
+ ALT="$\Omega\subset\mathbb R^d$">,
+<IMG
+ WIDTH="46" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
+ SRC="img7.gif"
+ ALT="$d\geq 2$">
+is not a polygonal domain but includes
+curved boundaries. For these cases the boundary cannot be represented
+exactly by the discretised boundary. Approximating the boundary by a
+piecewise linear boundary interpolation, i.e. by a polygonal boundary,
+may in some applications not be sufficient. In these cases a higher
+order boundary approximation, for example by piecewise quadratic or
+cubic boundary interpolation, must be employed.  In the finite element
+framework this higher order boundary approximation is realized by
+mapping the reference element <IMG
+ WIDTH="21" HEIGHT="21" ALIGN="BOTTOM" BORDER="0"
+ SRC="img8.gif"
+ ALT="$\hat K$">
+to the element
+
+<!-- MATH: $K=\sigma_K(\hat K)$ -->
+<IMG
+ WIDTH="96" HEIGHT="41" ALIGN="MIDDLE" BORDER="0"
+ SRC="img9.gif"
+ ALT="$K=\sigma_K(\hat K)$">
+in real space, whereas on cells <I>K</I> at the
+boundary, i.e.
+<!-- MATH: $\partial K\cap\Gamma=\emptyset$ -->
+<IMG
+ WIDTH="93" HEIGHT="34" ALIGN="MIDDLE" BORDER="0"
+ SRC="img10.gif"
+ ALT="$\partial K\cap\Gamma=\emptyset$">,
+the mappings
+<IMG
+ WIDTH="28" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img11.gif"
+ ALT="$\sigma_K$">
+are given by polynomial functions of higher degree.
+
+<P>
+<B>Elements with general mapping functions <IMG
+ WIDTH="28" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img11.gif"
+ ALT="$\sigma_K$">.</B>  We begin
+by first introducing some notation. Let <IMG
+ WIDTH="61" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img12.gif"
+ ALT="$K\in T_h$">
+be a cell of the
+triangulation <I>T</I><SUB><I>h</I></SUB> with
+<!-- MATH: $K=\sigma_K(\hat K)$ -->
+<IMG
+ WIDTH="96" HEIGHT="41" ALIGN="MIDDLE" BORDER="0"
+ SRC="img9.gif"
+ ALT="$K=\sigma_K(\hat K)$">,
+where <IMG
+ WIDTH="28" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img11.gif"
+ ALT="$\sigma_K$">is a smooth bijective mapping of the reference element (unit square)
+<IMG
+ WIDTH="21" HEIGHT="21" ALIGN="BOTTOM" BORDER="0"
+ SRC="img8.gif"
+ ALT="$\hat K$">
+to the element <I>K</I> in real space, see Figure
+<A HREF="index.html#fig:mapping">1</A>.
+<BR>
+<DIV ALIGN="CENTER"><A NAME="fig:mapping">&#160;</A><A NAME="183">&#160;</A>
+<TABLE WIDTH="50%">
+<CAPTION><STRONG>Figure:</STRONG>
+Mapping <IMG
+ WIDTH="15" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1.gif"
+ ALT="$\sigma $">
+of reference element <IMG
+ WIDTH="21" HEIGHT="21" ALIGN="BOTTOM" BORDER="0"
+ SRC="img8.gif"
+ ALT="$\hat K$">
+to the element <I>K</I> in real space.</CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER">
+
+<!-- MATH: $\includegraphics[scale=0.3]{figures/m1.ps}$ -->
+<IMG
+ WIDTH="660" ALIGN="BOTTOM" BORDER="0"
+ SRC="img13.gif"
+ ALT="\includegraphics[scale=0.3]{figures/m1.ps}"></DIV></TD></TR>
+</TABLE>
+</DIV>
+<BR>
+<P>
+In the following and for the sake of simplicity we suppress the letter
+<I>K</I> in the subscript and write <IMG
+ WIDTH="15" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1.gif"
+ ALT="$\sigma $">
+instead of <IMG
+ WIDTH="28" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img11.gif"
+ ALT="$\sigma_K$">.
+
+<P>
+<B>Mapping functions of higher polynomial degree.</B>  A mapping
+function <IMG
+ WIDTH="15" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1.gif"
+ ALT="$\sigma $">,
+that maps the reference element <IMG
+ WIDTH="21" HEIGHT="21" ALIGN="BOTTOM" BORDER="0"
+ SRC="img8.gif"
+ ALT="$\hat K$">
+to an
+arbitrary quadrilateral cell <I>K</I> with straight boundaries, can in
+general be represented by a bilinear function, i.e.  by a
+<I>Q</I><SUB>1</SUB>-mapping. For the case that the cell <I>K</I> includes curved
+boundaries it might be necessary to employ polynomial mapping
+functions of higher degree.
+
+<P>
+Given a degree <I>p</I>&gt;0, a cell <IMG
+ WIDTH="61" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img12.gif"
+ ALT="$K\in T_h$">,
+and (<I>p</I>+1)<SUP><I>d</I></SUP> mapping
+support points <IMG
+ WIDTH="56" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img14.gif"
+ ALT="$p_i\in K$">,
+
+<!-- MATH: $i=0,\ldots,(p+1)^d-1$ -->
+<IMG
+ WIDTH="174" HEIGHT="38" ALIGN="MIDDLE" BORDER="0"
+ SRC="img15.gif"
+ ALT="$i=0,\ldots,(p+1)^d-1$">,
+we define a
+<I>Q</I><SUB><I>p</I></SUB>-mapping
+<!-- MATH: $\sigma\in [Q_p]^d$ -->
+<IMG
+ WIDTH="75" HEIGHT="38" ALIGN="MIDDLE" BORDER="0"
+ SRC="img16.gif"
+ ALT="$\sigma\in [Q_p]^d$">
+as follows
+<BR><P></P>
+<DIV ALIGN="CENTER">
+
+<!-- MATH: \begin{equation}
+\sigma(\hat x)=\sum_{i=0}^{(p+1)^d-1}p_i\phi_i(\hat x).
+\end{equation} -->
+
+<TABLE WIDTH="100%" ALIGN="CENTER">
+<TR VALIGN="MIDDLE"><TD ALIGN="CENTER" NOWRAP><A NAME="eq:def-mapping-q">&#160;</A><IMG
+ WIDTH="176" HEIGHT="66"
+ SRC="img17.gif"
+ ALT="\begin{displaymath}
+\sigma(\hat x)=\sum_{i=0}^{(p+1)^d-1}p_i\phi_i(\hat x).
+\end{displaymath}"></TD>
+<TD WIDTH=10 ALIGN="RIGHT">
+(1)</TD></TR>
+</TABLE>
+</DIV>
+<BR CLEAR="ALL"><P></P>
+Here, <IMG
+ WIDTH="20" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
+ SRC="img18.gif"
+ ALT="$\phi_i$">,
+
+<!-- MATH: $i=0,\ldots,(p+1)^d-1$ -->
+<IMG
+ WIDTH="174" HEIGHT="38" ALIGN="MIDDLE" BORDER="0"
+ SRC="img15.gif"
+ ALT="$i=0,\ldots,(p+1)^d-1$">
+denote the Lagrange interpolation
+basis functions, that satisfy
+<BR><P></P>
+<DIV ALIGN="CENTER">
+<!-- MATH: \begin{displaymath}
+\phi_i(\hat p_j)=\delta_{ij}, \quad i,j=0,\ldots,(p+1)^d-1,
+\end{displaymath} -->
+
+
+<IMG
+ WIDTH="302" HEIGHT="32"
+ SRC="img19.gif"
+ ALT="\begin{displaymath}\phi_i(\hat p_j)=\delta_{ij}, \quad i,j=0,\ldots,(p+1)^d-1,
+\end{displaymath}">
+</DIV>
+<BR CLEAR="ALL">
+<P></P>
+where <IMG
+ WIDTH="19" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
+ SRC="img20.gif"
+ ALT="$\hat p_i$">,
+
+<!-- MATH: $i=0,\ldots,(p+1)^d-1$ -->
+<IMG
+ WIDTH="174" HEIGHT="38" ALIGN="MIDDLE" BORDER="0"
+ SRC="img15.gif"
+ ALT="$i=0,\ldots,(p+1)^d-1$">
+denote the Lagrange support
+points on the unit cell <IMG
+ WIDTH="21" HEIGHT="21" ALIGN="BOTTOM" BORDER="0"
+ SRC="img8.gif"
+ ALT="$\hat K$">.
+The definition of <IMG
+ WIDTH="15" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1.gif"
+ ALT="$\sigma $">(<A HREF="index.html#eq:def-mapping-q">1</A>) ensures that each of the unit support points
+<IMG
+ WIDTH="19" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
+ SRC="img20.gif"
+ ALT="$\hat p_i$">
+is mapped onto the corresponding mapping support points
+<I>p</I><SUB><I>i</I></SUB>, i.e.
+<BR><P></P>
+<DIV ALIGN="CENTER">
+
+<!-- MATH: \begin{equation}
+\sigma(\hat p_i)=p_i, \quad i=0,\ldots,(p+1)^d-1
+\end{equation} -->
+
+<TABLE WIDTH="100%" ALIGN="CENTER">
+<TR VALIGN="MIDDLE"><TD ALIGN="CENTER" NOWRAP><A NAME="eq:point-mappings">&#160;</A><IMG
+ WIDTH="270" HEIGHT="31"
+ SRC="img21.gif"
+ ALT="\begin{displaymath}
+\sigma(\hat p_i)=p_i, \quad i=0,\ldots,(p+1)^d-1
+\end{displaymath}"></TD>
+<TD WIDTH=10 ALIGN="RIGHT">
+(2)</TD></TR>
+</TABLE>
+</DIV>
+<BR CLEAR="ALL"><P></P>
+Analogous to Lagrange finite elements the unit Lagrange support points
+<IMG
+ WIDTH="19" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
+ SRC="img20.gif"
+ ALT="$\hat p_i$">
+are equidistantly distributed on <IMG
+ WIDTH="21" HEIGHT="21" ALIGN="BOTTOM" BORDER="0"
+ SRC="img8.gif"
+ ALT="$\hat K$">
+based on a tensor
+product mesh. In the following we only consider the two-dimensional
+case, <I>d</I>=2.  For that case, Figure <A HREF="index.html#fig:unit-mapping-points">2</A>
+shows the distributions of the unit support points <IMG
+ WIDTH="19" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
+ SRC="img20.gif"
+ ALT="$\hat p_i$">,
+
+<!-- MATH: $i=0,\ldots,(p+1)^2-1$ -->
+<IMG
+ WIDTH="174" HEIGHT="37" ALIGN="MIDDLE" BORDER="0"
+ SRC="img22.gif"
+ ALT="$i=0,\ldots,(p+1)^2-1$">
+for degrees
+<!-- MATH: $p=1,\ldots,4$ -->
+<IMG
+ WIDTH="96" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5.gif"
+ ALT="$p=1,\ldots ,4$">.
+<BR>
+<DIV ALIGN="CENTER"><A NAME="fig:unit-mapping-points">&#160;</A><A NAME="184">&#160;</A>
+<TABLE WIDTH="50%">
+<CAPTION><STRONG>Figure:</STRONG>
+Unit support points <IMG
+ WIDTH="19" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
+ SRC="img20.gif"
+ ALT="$\hat p_i$">,
+
+<!-- MATH: $0\leq i<(p+1)^2$ -->
+<IMG
+ WIDTH="126" HEIGHT="37" ALIGN="MIDDLE" BORDER="0"
+ SRC="img4.gif"
+ ALT="$0\leq i<(p+1)^2$">,
+for degrees
+<!-- MATH: $p=1,\ldots,4$ -->
+<IMG
+ WIDTH="96" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5.gif"
+ ALT="$p=1,\ldots ,4$">.</CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER">
+
+<!-- MATH: $\includegraphics*[width=2.750cm]{../../../phd/figures/boundary_approximation/mapping/unit_points_q1_n.eps}$ -->
+<IMG
+ WIDTH="180" ALIGN="BOTTOM" BORDER="0"
+ SRC="img23.gif"
+ ALT="\includegraphics*[width=2.750cm]{../../../phd/figures/boundary_approximation/mapping/unit_points_q1_n.eps}">
+
+<!-- MATH: $\includegraphics*[width=2.750cm]{../../../phd/figures/boundary_approximation/mapping/unit_points_q2_n.eps}$ -->
+<IMG
+ WIDTH="180" ALIGN="BOTTOM" BORDER="0"
+ SRC="img24.gif"
+ ALT="\includegraphics*[width=2.750cm]{../../../phd/figures/boundary_approximation/mapping/unit_points_q2_n.eps}">
+
+<!-- MATH: $\includegraphics*[width=2.750cm]{../../../phd/figures/boundary_approximation/mapping/unit_points_q3_n.eps}$ -->
+<IMG
+ WIDTH="180" ALIGN="BOTTOM" BORDER="0"
+ SRC="img25.gif"
+ ALT="\includegraphics*[width=2.750cm]{../../../phd/figures/boundary_approximation/mapping/unit_points_q3_n.eps}">
+
+<!-- MATH: $\includegraphics*[width=2.750cm]{../../../phd/figures/boundary_approximation/mapping/unit_points_q4_n.eps}$ -->
+<IMG
+ WIDTH="180" ALIGN="BOTTOM" BORDER="0"
+ SRC="img26.gif"
+ ALT="\includegraphics*[width=2.750cm]{../../../phd/figures/boundary_approximation/mapping/unit_points_q4_n.eps}"></DIV></TD></TR>
+</TABLE>
+</DIV>
+<BR>
+Let the ordering and numbering of the unit support points be as
+follows: first the corners, then the points on the edges and finally
+the inner support points, see also Figure
+<A HREF="index.html#fig:unit-mapping-points">2</A>.  Thus the first 4<I>p</I> points are placed
+on the boundary
+<!-- MATH: $\partial\hat K$ -->
+<IMG
+ WIDTH="31" HEIGHT="21" ALIGN="BOTTOM" BORDER="0"
+ SRC="img27.gif"
+ ALT="$\partial\hat K$">
+of the reference cell, i.e.
+<BR><P></P>
+<DIV ALIGN="CENTER">
+<!-- MATH: \begin{displaymath}
+\hat p_k\in\partial\hat K, \quad k=0,\ldots,4p-1.
+\end{displaymath} -->
+
+
+<IMG
+ WIDTH="225" HEIGHT="30"
+ SRC="img28.gif"
+ ALT="\begin{displaymath}\hat p_k\in\partial\hat K, \quad k=0,\ldots,4p-1.
+\end{displaymath}">
+</DIV>
+<BR CLEAR="ALL">
+<P></P>
+According to (<A HREF="index.html#eq:point-mappings">2</A>) these points are mapped to the
+mapping support points <I>p</I><SUB><I>k</I></SUB>,
+<!-- MATH: $k=0,\ldots,4p-1$ -->
+<IMG
+ WIDTH="135" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
+ SRC="img29.gif"
+ ALT="$k=0,\ldots,4p-1$">
+that are chosen to be
+placed on the boundary of the real cell in approximatively equal
+distances, i.e.
+<BR><P></P>
+<DIV ALIGN="CENTER">
+<!-- MATH: \begin{displaymath}
+p_k\in\partial K, \quad k=0,\ldots,4p-1.
+\end{displaymath} -->
+
+
+<IMG
+ WIDTH="224" HEIGHT="30"
+ SRC="img30.gif"
+ ALT="\begin{displaymath}p_k\in\partial K, \quad k=0,\ldots,4p-1.
+\end{displaymath}">
+</DIV>
+<BR CLEAR="ALL">
+<P></P>
+While the support points <I>p</I><SUB><I>k</I></SUB>,
+<!-- MATH: $k=0,\ldots,4p-1$ -->
+<IMG
+ WIDTH="135" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
+ SRC="img29.gif"
+ ALT="$k=0,\ldots,4p-1$">
+on the boundary are
+given by the boundary description of the real cell <I>K</I>, the <EM>inner
+  mapping support points</EM>
+<BR><P></P>
+<DIV ALIGN="CENTER">
+<!-- MATH: \begin{displaymath}
+p_i\in K\setminus\partial K, \quad i=4p,\ldots,(p+1)^2-1
+\end{displaymath} -->
+
+
+<IMG
+ WIDTH="297" HEIGHT="31"
+ SRC="img31.gif"
+ ALT="\begin{displaymath}p_i\in K\setminus\partial K, \quad i=4p,\ldots,(p+1)^2-1
+\end{displaymath}">
+</DIV>
+<BR CLEAR="ALL">
+<P></P>
+are not uniquely determined. Numerical tests show that it is not a
+trivial task to define the positions of the inner mapping support
+points appropriately. If they are not chosen appropriately the
+resulting mapping <IMG
+ WIDTH="15" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1.gif"
+ ALT="$\sigma $">
+for a cell <I>K</I> may degenerate, i.e. the
+mapping <IMG
+ WIDTH="15" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1.gif"
+ ALT="$\sigma $">
+for some cell <I>K</I> may not be bijective.
+
+<P>
+<B>Computation of inner support points by smooth transformation.</B>
+In the following we will define the positions of the inner mapping
+support points so that the mapping does - in all practical cases - <I>not</I>
+degenerate. To this end, we employ an approach for the mapping of the
+support points, that is in the style of the smooth transformations
+that is used to transform structured triangulations to match complex
+boundary discriptions. In the following, again for notational
+convenience, we consider only the two-dimensional case.
+
+<P>
+The smooth transformation mentioned above is based on solutions to the
+Laplace equation that is solved on the reference cell <IMG
+ WIDTH="21" HEIGHT="21" ALIGN="BOTTOM" BORDER="0"
+ SRC="img8.gif"
+ ALT="$\hat K$">.
+Discrete boundary conditions are imposed that are given by the
+coordinates of the mapping support points <I>p</I><SUB><I>k</I></SUB>,
+<!-- MATH: $k=0,\ldots,4p-1$ -->
+<IMG
+ WIDTH="135" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
+ SRC="img29.gif"
+ ALT="$k=0,\ldots,4p-1$">,
+on
+the boundary of the cell <I>K</I> in real space.
+
+<P>
+To be more explicite we define a Laplace problem on the unit
+cell <IMG
+ WIDTH="21" HEIGHT="21" ALIGN="BOTTOM" BORDER="0"
+ SRC="img8.gif"
+ ALT="$\hat K$">
+<BR><P></P>
+<DIV ALIGN="CENTER">
+
+<!-- MATH: \begin{equation}
+\begin{array}{rcll}
+-\hat\Delta \sigma_l(\hat x)&=&0, \quad &\hat x\in \hat K,\\
+  \sigma_l(\hat x)&=&{g_l}|_{\partial \hat K}(\hat x), \quad &\hat x\in \partial\hat K,
+\end{array}
+\end{equation} -->
+
+<TABLE WIDTH="100%" ALIGN="CENTER">
+<TR VALIGN="MIDDLE"><TD ALIGN="CENTER" NOWRAP><A NAME="eq:local-laplace-problem">&#160;</A><IMG
+ WIDTH="273" HEIGHT="53"
+ SRC="img32.gif"
+ ALT="\begin{displaymath}
+\begin{array}{rcll}
+-\hat\Delta \sigma_l(\hat x)&=&0, \quad...
+...l \hat K}(\hat x), \quad &\hat x\in \partial\hat K,
+\end{array}\end{displaymath}"></TD>
+<TD WIDTH=10 ALIGN="RIGHT">
+(3)</TD></TR>
+</TABLE>
+</DIV>
+<BR CLEAR="ALL"><P></P>
+for each component <IMG
+ WIDTH="20" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
+ SRC="img33.gif"
+ ALT="$\sigma_l$">,
+<I>l</I>=1,2, of the <I>Q</I><SUB><I>p</I></SUB> mapping
+<IMG
+ WIDTH="15" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
+ SRC="img1.gif"
+ ALT="$\sigma $">.
+Here, the discrete boundary function
+<!-- MATH: $g\in [Q_p]^2$ -->
+<IMG
+ WIDTH="73" HEIGHT="37" ALIGN="MIDDLE" BORDER="0"
+ SRC="img34.gif"
+ ALT="$g\in [Q_p]^2$">
+is
+given by
+<BR><P></P>
+<DIV ALIGN="CENTER">
+
+<!-- MATH: \begin{equation}
+g_l(\hat x)=\sum_{i=0}^{4p-1}(p_i)_l\phi_i(\hat x), \quad l=1,\ldots,d
+\end{equation} -->
+
+<TABLE WIDTH="100%" ALIGN="CENTER">
+<TR VALIGN="MIDDLE"><TD ALIGN="CENTER" NOWRAP><A NAME="eq:discrete-boundary-function">&#160;</A><IMG
+ WIDTH="277" HEIGHT="62"
+ SRC="img35.gif"
+ ALT="\begin{displaymath}
+g_l(\hat x)=\sum_{i=0}^{4p-1}(p_i)_l\phi_i(\hat x), \quad l=1,\ldots,d
+\end{displaymath}"></TD>
+<TD WIDTH=10 ALIGN="RIGHT">
+(4)</TD></TR>
+</TABLE>
+</DIV>
+<BR CLEAR="ALL"><P></P>
+where (<I>p</I><SUB><I>i</I></SUB>)<SUB><I>l</I></SUB> denotes the <I>l</I>th component of the support point <I>p</I><SUB><I>i</I></SUB>,
+and <IMG
+ WIDTH="20" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
+ SRC="img18.gif"
+ ALT="$\phi_i$">
+the corresponding Lagrangian interpolation basis
+function.  We recall that the numbering of the mapping support points
+involves
+<!-- MATH: $p_k\in\partial K$ -->
+<IMG
+ WIDTH="69" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
+ SRC="img36.gif"
+ ALT="$p_k\in\partial K$">
+for
+<!-- MATH: $k=0,\ldots, 4p-1$ -->
+<IMG
+ WIDTH="135" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
+ SRC="img29.gif"
+ ALT="$k=0,\ldots,4p-1$">.
+Substituting
+<BR><P></P>
+<DIV ALIGN="CENTER">
+
+<!-- MATH: \begin{equation}
+\tilde \sigma_l:=\sigma_l-g_l, \quad l=1,2,
+\end{equation} -->
+
+<TABLE WIDTH="100%" ALIGN="CENTER">
+<TR VALIGN="MIDDLE"><TD ALIGN="CENTER" NOWRAP><A NAME="eq:def-tilde-sigma">&#160;</A><IMG
+ WIDTH="176" HEIGHT="30"
+ SRC="img37.gif"
+ ALT="\begin{displaymath}
+\tilde \sigma_l:=\sigma_l-g_l, \quad l=1,2,
+\end{displaymath}"></TD>
+<TD WIDTH=10 ALIGN="RIGHT">
+(5)</TD></TR>
+</TABLE>
+</DIV>
+<BR CLEAR="ALL"><P></P>
+into the Laplace problem (<A HREF="index.html#eq:local-laplace-problem">3</A>) yields the
+zero boundary value problem,
+<BR><P></P>
+<DIV ALIGN="CENTER">
+
+<!-- MATH: \begin{equation}
+\begin{array}{rcll}
+-\hat\Delta \tilde\sigma_l(\hat x)&=&\hat\Delta g_l(\hat x), \quad &\hat x\in \hat K,\\
+  \tilde\sigma_l(\hat x)&=&0, \quad &\hat x\in \partial\hat K,
+\end{array}
+\end{equation} -->
+
+<TABLE WIDTH="100%" ALIGN="CENTER">
+<TR VALIGN="MIDDLE"><TD ALIGN="CENTER" NOWRAP><A NAME="eq:transformed-local-laplace-problem">&#160;</A><IMG
+ WIDTH="262" HEIGHT="53"
+ SRC="img38.gif"
+ ALT="\begin{displaymath}
+\begin{array}{rcll}
+-\hat\Delta \tilde\sigma_l(\hat x)&=&\h...
+...gma_l(\hat x)&=&0, \quad &\hat x\in \partial\hat K,
+\end{array}\end{displaymath}"></TD>
+<TD WIDTH=10 ALIGN="RIGHT">
+(6)</TD></TR>
+</TABLE>
+</DIV>
+<BR CLEAR="ALL"><P></P>
+that is equivalent to the following variational formulation
+<BR><P></P>
+<DIV ALIGN="CENTER">
+<!-- MATH: \begin{displaymath}
+\tilde\sigma_l\in H^1_0(\hat K):\qquad
+(\hat\nabla \tilde\sigma_l, \hat\nabla \phi)_{\hat K}
+    = -(\hat\nabla g_l, \hat\nabla \phi)_{\hat K} \quad \forall \phi\in  H^1_0(\hat K).
+\end{displaymath} -->
+
+
+<IMG
+ WIDTH="467" HEIGHT="33"
+ SRC="img39.gif"
+ ALT="\begin{displaymath}\tilde\sigma_l\in H^1_0(\hat K):\qquad
+(\hat\nabla \tilde\si...
+...\hat\nabla \phi)_{\hat K} \quad \forall \phi\in H^1_0(\hat K). \end{displaymath}">
+</DIV>
+<BR CLEAR="ALL">
+<P></P>
+Discretisation of this problem
+<BR><P></P>
+<DIV ALIGN="CENTER">
+<!-- MATH: \begin{displaymath}
+\tilde\sigma_l\in Q_p(\hat K):\qquad
+(\hat\nabla \tilde\sigma_l, \hat\nabla \phi_{4p+i})_{\hat K}
+    = -(\hat\nabla g_l, \hat\nabla \phi_{4p+i})_{\hat K} \quad \forall i=0,\ldots, (p-1)^2-1,
+\end{displaymath} -->
+
+
+<IMG
+ WIDTH="609" HEIGHT="33"
+ SRC="img40.gif"
+ ALT="\begin{displaymath}\tilde\sigma_l\in Q_p(\hat K):\qquad
+(\hat\nabla \tilde\sigm...
+...bla \phi_{4p+i})_{\hat K} \quad \forall i=0,\ldots, (p-1)^2-1, \end{displaymath}">
+</DIV>
+<BR CLEAR="ALL">
+<P></P>
+and recalling definitions (<A HREF="index.html#eq:def-mapping-q">1</A>), (<A HREF="index.html#eq:def-tilde-sigma">5</A>) and (<A HREF="index.html#eq:discrete-boundary-function">4</A>) gives
+<BR><P></P>
+<DIV ALIGN="CENTER">
+
+<!-- MATH: \begin{equation}
+\sum_{j=1}^{(p-1)^2}S_{ij}(p_{4p+j})_l=-\sum_{k=0}^{4p-1}T_{ik}(p_k)_l, \quad i=0, \ldots, (p-1)^2-1,
+\end{equation} -->
+
+<TABLE WIDTH="100%" ALIGN="CENTER">
+<TR VALIGN="MIDDLE"><TD ALIGN="CENTER" NOWRAP><A NAME="eq:discrete-local-laplace">&#160;</A><IMG
+ WIDTH="455" HEIGHT="68"
+ SRC="img41.gif"
+ ALT="\begin{displaymath}
+\sum_{j=1}^{(p-1)^2}S_{ij}(p_{4p+j})_l=-\sum_{k=0}^{4p-1}T_{ik}(p_k)_l, \quad i=0, \ldots, (p-1)^2-1,
+\end{displaymath}"></TD>
+<TD WIDTH=10 ALIGN="RIGHT">
+(7)</TD></TR>
+</TABLE>
+</DIV>
+<BR CLEAR="ALL"><P></P>
+with the matrices
+<!-- MATH: $S_{ij}\in\mathbb R^{(p-1)^2\times(p-1)^2}$ -->
+<IMG
+ WIDTH="155" HEIGHT="42" ALIGN="MIDDLE" BORDER="0"
+ SRC="img42.gif"
+ ALT="$S_{ij}\in\mathbb R^{(p-1)^2\times(p-1)^2}$">
+and
+<!-- MATH: $T_{ik}\in\mathbb R^{(p-1)^2\times 4p}$ -->
+<IMG
+ WIDTH="128" HEIGHT="42" ALIGN="MIDDLE" BORDER="0"
+ SRC="img43.gif"
+ ALT="$T_{ik}\in\mathbb R^{(p-1)^2\times 4p}$">
+given by
+<BR><P></P>
+<DIV ALIGN="CENTER">
+<!-- MATH: \begin{displaymath}
+S_{ij}=(\hat\nabla \phi_{4p+i}, \hat\nabla \phi_{4p+j})_{\hat K}, \quad i,j=0,\ldots,(p-1)^2-1,
+\end{displaymath} -->
+
+
+<IMG
+ WIDTH="404" HEIGHT="33"
+ SRC="img44.gif"
+ ALT="\begin{displaymath}S_{ij}=(\hat\nabla \phi_{4p+i}, \hat\nabla \phi_{4p+j})_{\hat K}, \quad i,j=0,\ldots,(p-1)^2-1,
+\end{displaymath}">
+</DIV>
+<BR CLEAR="ALL">
+<P></P>
+and
+<BR><P></P>
+<DIV ALIGN="CENTER">
+<!-- MATH: \begin{displaymath}
+T_{ik}=(\hat\nabla \phi_{4p+i}, \hat\nabla \phi_k)_{\hat K}, \quad i=0,\ldots,(p-1)^2-1,\quad k=0,\ldots,4p-1.
+\end{displaymath} -->
+
+
+<IMG
+ WIDTH="522" HEIGHT="33"
+ SRC="img45.gif"
+ ALT="\begin{displaymath}T_{ik}=(\hat\nabla \phi_{4p+i}, \hat\nabla \phi_k)_{\hat K}, \quad i=0,\ldots,(p-1)^2-1,\quad k=0,\ldots,4p-1.
+\end{displaymath}">
+</DIV>
+<BR CLEAR="ALL">
+<P></P>
+The solutions to problem (<A HREF="index.html#eq:discrete-local-laplace">7</A>) for <I>l</I>=1,2 are
+<BR><P></P>
+<DIV ALIGN="CENTER">
+<!-- MATH: \begin{displaymath}
+(p_{4p+j})_l=-\sum_{i=0}^{(p-1)^2-1}\sum_{k=0}^{4p-1}S^{-1}_{ji}T_{ik}(p_k)_l, \quad j=0,\ldots,(p-1)^2-1,
+\end{displaymath} -->
+
+
+<IMG
+ WIDTH="481" HEIGHT="66"
+ SRC="img46.gif"
+ ALT="\begin{displaymath}(p_{4p+j})_l=-\sum_{i=0}^{(p-1)^2-1}\sum_{k=0}^{4p-1}S^{-1}_{ji}T_{ik}(p_k)_l, \quad j=0,\ldots,(p-1)^2-1,
+\end{displaymath}">
+</DIV>
+<BR CLEAR="ALL">
+<P></P>
+that may be written in compact form:
+<BR><P></P>
+<DIV ALIGN="CENTER">
+
+<!-- MATH: \begin{equation}
+p_{4p+j}=\sum_{k=0}^{4p-1}c_{jk}p_k, \quad j=0,\ldots,(p-1)^2-1,
+\end{equation} -->
+
+<TABLE WIDTH="100%" ALIGN="CENTER">
+<TR VALIGN="MIDDLE"><TD ALIGN="CENTER" NOWRAP><A NAME="eq:linear-combination-laplace">&#160;</A><IMG
+ WIDTH="337" HEIGHT="62"
+ SRC="img47.gif"
+ ALT="\begin{displaymath}
+p_{4p+j}=\sum_{k=0}^{4p-1}c_{jk}p_k, \quad j=0,\ldots,(p-1)^2-1,
+\end{displaymath}"></TD>
+<TD WIDTH=10 ALIGN="RIGHT">
+(8)</TD></TR>
+</TABLE>
+</DIV>
+<BR CLEAR="ALL"><P></P>
+where <I>c</I><SUB><I>jk</I></SUB> represents the coefficient
+<BR><P></P>
+<DIV ALIGN="CENTER">
+
+<!-- MATH: \begin{equation}
+c_{jk}=-\sum_{i=0}^{(p-1)^2-1}S^{-1}_{ji}T_{ik}.
+\end{equation} -->
+
+<TABLE WIDTH="100%" ALIGN="CENTER">
+<TR VALIGN="MIDDLE"><TD ALIGN="CENTER" NOWRAP><A NAME="eq:coefficients">&#160;</A><IMG
+ WIDTH="180" HEIGHT="65"
+ SRC="img48.gif"
+ ALT="\begin{displaymath}
+c_{jk}=-\sum_{i=0}^{(p-1)^2-1}S^{-1}_{ji}T_{ik}.
+\end{displaymath}"></TD>
+<TD WIDTH=10 ALIGN="RIGHT">
+(9)</TD></TR>
+</TABLE>
+</DIV>
+<BR CLEAR="ALL"><P></P>
+of the linear combination (<A HREF="index.html#eq:linear-combination-laplace">8</A>), that
+represents the dependency of the <I>j</I>th inner mapping support point
+<I>p</I><SUB>4<I>p</I>+<I>j</I></SUB> on the support points <I>p</I><SUB><I>k</I></SUB>,
+<!-- MATH: $k=0,\ldots,4p-1$ -->
+<IMG
+ WIDTH="135" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
+ SRC="img29.gif"
+ ALT="$k=0,\ldots,4p-1$">,
+that are
+placed on the boundary of the cell <I>K</I>. For a fixed degree <I>p</I>, these
+coefficients <I>c</I><SUB><I>jk</I></SUB> are the same for the mapping of <EM>all</EM> cells
+<I>K</I> in real space because the <I>c</I><SUB><I>jk</I></SUB> depend only on the reference
+element <IMG
+ WIDTH="21" HEIGHT="21" ALIGN="BOTTOM" BORDER="0"
+ SRC="img8.gif"
+ ALT="$\hat K$">.
+Therefore the coefficients <I>c</I><SUB><I>jk</I></SUB> can be
+precomputed and result in following linear combinations:
+
+<P>
+For <I>p</I>=2 the linear combination turns out to be
+<BR><P></P>
+<DIV ALIGN="CENTER">
+<!-- MATH: \begin{displaymath}
+p_8=\tfrac{1}{16}\sum_{k=0}^3p_k+\tfrac{3}{16}\sum_{k=4}^7p_k,
+\end{displaymath} -->
+
+
+<IMG
+ WIDTH="196" HEIGHT="61"
+ SRC="img49.gif"
+ ALT="\begin{displaymath}p_8=\tfrac{1}{16}\sum_{k=0}^3p_k+\tfrac{3}{16}\sum_{k=4}^7p_k,
+\end{displaymath}">
+</DIV>
+<BR CLEAR="ALL">
+<P></P>
+see also Figure <A HREF="index.html#fig:coefficients-q2-q3">3</A>, left.
+<BR>
+<DIV ALIGN="CENTER"><A NAME="fig:coefficients-q2-q3">&#160;</A><A NAME="185">&#160;</A>
+<TABLE WIDTH="50%">
+<CAPTION><STRONG>Figure 3:</STRONG>
+Left: Coefficients <I>c</I><SUB>8,<I>k</I></SUB> for <I>Q</I><SUB>2</SUB> mapping. Right: Coefficients <I>c</I><SUB>12,<I>k</I></SUB> for <I>Q</I><SUB>3</SUB> mapping.</CAPTION>
+<TR><TD>
+<DIV ALIGN="CENTER">
+
+<!-- MATH: $\includegraphics*[scale=0.4]{figures/m2.ps}$ -->
+<IMG
+ WIDTH="700" ALIGN="BOTTOM" BORDER="0"
+ SRC="img50.gif"
+ ALT="\includegraphics*[scale=0.4]{figures/m2.ps}"></DIV></TD></TR>
+</TABLE>
+</DIV>
+<BR>
+For the case that <I>p</I>=3, Figure <A HREF="index.html#fig:coefficients-q2-q3">3</A>, right, shows the coefficients <I>c</I><SUB>12,<I>k</I></SUB> of the linear combination for the inner mapping support point <I>p</I><SUB>12</SUB>. The coefficents for the points <I>p</I><SUB>13</SUB>, <I>p</I><SUB>14</SUB> and <I>p</I><SUB>15</SUB> can be obtain by rotation of the coefficients.
+
+<P>
+<B>Implementation in deal.II.</B>  The coefficients <I>c</I><SUB><I>jk</I></SUB>, see
+(<A HREF="index.html#eq:coefficients">9</A>), are represented in the <I>MappingQ</I>
+class by the <I>laplace_on_quad_vector</I> as follows
+<BR><P></P>
+<DIV ALIGN="CENTER">
+<!-- MATH: \begin{displaymath}
+\mbox{\textit{laplace\_on\_quad\_vector}[j][k]}=c_{jk}
+\end{displaymath} -->
+
+
+<IMG
+ WIDTH="247" HEIGHT="32"
+ SRC="img51.gif"
+ ALT="\begin{displaymath}\mbox{\textit{laplace\_on\_quad\_vector}[j][k]}=c_{jk}
+\end{displaymath}">
+</DIV>
+<BR CLEAR="ALL">
+<P></P>
+These coefficients are the same for the mapping of <EM>all</EM> cells
+<I>K</I> in real space because the <I>c</I><SUB><I>jk</I></SUB> depend only on the reference
+element <IMG
+ WIDTH="21" HEIGHT="21" ALIGN="BOTTOM" BORDER="0"
+ SRC="img8.gif"
+ ALT="$\hat K$">.
+Hence for a given degree <I>p</I> the
+<I>laplace_on_quad_vector</I> can be filled by the constructor of
+the <I>MappingQ</I> class. This is done by calling the
+<I>MappingQ::set_laplace_on_quad_vector</I> function that
+includes the coefficients hardcoded for <I>p</I>=2 and <I>p</I>=3 in <I>d</I>=2 dimensions, and a routine for computing the coefficients according to
+(<A HREF="index.html#eq:coefficients">9</A>) for all other cases.  The mapping support
+points <IMG
+ WIDTH="56" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img14.gif"
+ ALT="$p_i\in K$">,
+
+<!-- MATH: $i=0,\ldots,(p+1)^d-1$ -->
+<IMG
+ WIDTH="174" HEIGHT="38" ALIGN="MIDDLE" BORDER="0"
+ SRC="img15.gif"
+ ALT="$i=0,\ldots,(p+1)^d-1$">
+are computed once for each
+MappingQ object by the
+<I>MappingQ::compute_support_points_laplace</I> that is invoked
+by the virtual <I>compute_mapping_support_points</I> function of
+the base <I>Mapping</I> class. In
+<I>MappingQ::compute_support_points_laplace</I>, first the 4<I>p</I> points on the boundary of the cell are computed (by calling
+<I>MappingQ::add_line_support_points</I>), then by calling
+<I>MappingQ::apply_laplace_vector</I> the remaining (<I>p</I>-1)<SUP>2</SUP> inner mapping supports points are computed, where
+<I>MappingQ::apply_laplace_vector</I> just performs the linear
+combination given in (<A HREF="index.html#eq:linear-combination-laplace">8</A>).
+<BR><HR>
+</FONT>
+<ADDRESS>
+<I>Ralf Hartmann</I>
+<BR><I>2001-09-03</I>
+</ADDRESS>
+</BODY>
+</HTML>

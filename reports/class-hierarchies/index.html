@@ -1,0 +1,996 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Frameset//EN"
+   "http://www.w3.org/TR/REC-html40/frameset.dtd">
+<html>
+  <head>
+    <link href="../../screen.css" rel="StyleSheet" media="screen">
+    <title>The deal.II Homepage</title>
+    <meta name="author" content="the deal.II authors">
+    <meta name="keywords" content="deal.II"></head>
+
+   </head>
+<BODY LINK="#0000ff" VLINK="#800080">
+
+<H1 ALIGN="CENTER">
+Description of the C++ class hierarchy for the
+accessor classes
+</H1>
+
+
+<p ALIGN="CENTER">
+  <strong> Wolfgang Bangerth, 1998, 1999, 2000</strong>
+</p>
+
+
+<p>
+The class hierarchy of the accessor classes used to retrieve and store
+data in the triangulation and degree of freedom handler objects is one
+of  the more complicated parts of  the library. It  makes heavy use of
+class templates with  integers  as template parameters  as  well as of
+explicit specialization  of classes and  member functions.  Therefore,
+it is not so  easy to  see the  connections and  inheritance relations
+within this part of the class tree; this  document tries to shed a bit
+of light onto this.
+</p>
+
+<p>
+Furthermore, it lists the member functions that can be queried to
+obtain information from an iterator.
+</p>
+
+
+<strong>Table of contents</strong>
+<ul>
+  <li> <a href="#intro" target="body">What iterators and accessors
+       are</a> 
+  <li> <a href="#tria-accessors" target="body">The triangulation
+       accessor hierarchy</a> 
+  <li> <a href="#tria-typedefs" target="body">Typedefs of the
+       Triangulation class to iterators and accessors</a>
+  <li> <a href="#tria-functions" target="body">Functions offered by
+       triangulation accessors</a> 
+  <li> <a href="#dof-accessors" target="body">The degree of freedom
+       accessor hierarchy</a> 
+  <li> <a href="#dof-typedefs" target="body">Typedefs of the
+       DoFHandler class to iterators and accessors</a>
+  <li> <a href="#dof-functions" target="body">Functions offered by
+       degree of freedom accessors</a> 
+</ul>
+
+
+<a name="intro"></a>
+<H3>
+What iterators and accessors are
+</H3>
+
+<p>
+When  using  adative finite elements,   the data structures  often are
+extremely complex, requiring   multiply indirected access  and complex
+relationships between  the different places  where data is stored. The
+traditional way  to  handle this is  to  put  all  data which  belongs
+together somehow into  a structure or  object; however, sometimes this
+can  not  be done  efficiently,    leading  to either higher    memory
+consumption (when you have to store many small data pieces and because
+you have to store a lot of pointers to other objects) or higher coding
+requirements (when you want to follow all those pointers to the object
+you desire).
+</p>
+
+<p>
+Therefore, we took  over a concept  which was already  used in the C++
+standard template library, namely iterators and accessors. An accessor
+is an object that looks like if it  had all the information stored but
+really only delegates the access to the right  places; in fact, within
+this library, accessor store almost  no information but know where  to
+get   everything   from the complex  and   nested  data structures the
+triangulation object offers. They have a simple interface which allows
+to     extract any desired   information   from  the triangulation and
+therefore makes access  much easier and safer in  three ways: first it
+performs range and parameter checking  when in debugging mode; second,
+it encapsulates the access to the real data  from the user, hiding the
+true data structures and thus allowing  them without changing the user
+programs as well as those parts of the  library which only act through
+accessors; and third by reducing the coding  errors because of reduced
+complexity, since the chains of indirect access are replaces by simple
+commands.
+</p>
+
+<p>
+Iterators are a  related concept: while  accessors act as if they were
+structures with data contained in them, iterators act  as if they were
+pointers pointing to   accessors. You can  dereference  them using the
+-&gt; and * operators  as with any  other pointer, but they have  more
+functionality. Essentially, they  have overloaded ++ and -- operators,
+which  allow the next  or previous object  pointed to to be just about
+anywhere  in memory. A good introductory  example are the iterators of
+the STL  <CODE>list&lt;T&gt;</CODE> class, which  act on a linked list
+as if it  were a contiguous  array. The  iterators in  this library go
+even a step further: they do not point to different objects but rather
+tell  the   associated  accessor   object which   data   to  look   at
+next.
+</p>
+
+<p>
+Additionally, there  are different  versions  of the   iterators which
+behave  differently   when  being  incremented or   decremented: while
+<I>raw</I> iterators let the  associated accessor point  to any of the
+objects it   is  made for,  <I>normal</I>  iterators   always point to
+objects which are in use.  Usually, you will not want  to see cells or
+lines which are there but are unused by the triangulation (these cells
+are  somewhat like  holes in  the   arrays of the triangulation;  such
+things happen  when unrefining a cell,  the freed memory  is then kept
+for a while  because of better efficiency), so  you will  almost never
+want to use raw iterators;  they are mostly there  for internal use in
+the    library. Normal iterators are   almost  like raw iterators, but
+whenever you call the ++  or -- operator,  the  look at what they  are
+pointing at  and skip all unused  elements by increasing or decreasing
+the pointer as often as necessary to reach the next used object.
+</p>
+
+<p>
+Finally,    there are <I>active</I>  iterators,    which are the  most
+important ones. They  are  like normal   iterators but  only point  to
+active cells or lines.  By active we  mean that they have no children;
+in  the context in which this  library is used,  this is equivalent to
+the  fact   that   we  do  computations   on these   cells,   lines or
+whatever. Active iterators  are normal iterators  which  skip over all
+non-active cells, lines, etc when being incremented or decremented.
+</p>
+
+
+
+<a name="tria-accessors"></a>
+<H3>
+The triangulation accessor hierarchy
+</H3>
+
+<p>
+The triangulation accessors are used to retrieve and store data in the
+triangulation.  There  exist accessors  for  lines  in one and  higher
+dimensions, accessors for  quads in two  and higher dimensions, and so
+on. The general naming scheme is as follows:
+<ul>
+<li> <code>TriaAccessor&lt;dim&gt;</code> is a general base class
+     which is of not much interest.
+<li> <code>TriaObjectAccessor&lt;objectdim,spacedim&gt;</code> denotes
+     an accessor for an object with dimension
+     <code>objectdim</code> in a <code>spacedim</code> dimensional
+     space. It is derived from <code>TriaAccessor&lt;spacedim&gt;</code>.
+<li> <code>CellAccessor&lt;dim&gt;</code> presents the special
+     properties that a cell has. It is therefore derived from
+     <code>TriaObjectAccessor&lt;spacedimdim,spacedim&gt;</code>.
+</ul>
+</p>
+
+<p>
+Their inheritance trees in the different space dimensions therefore
+look like this:
+</p>
+
+<hr>
+
+<CENTER>
+<IMG SRC="1d-tria.jpg" ALIGN="CENTER" WIDTH="80%"> 
+</CENTER>
+<p>
+
+<hr>
+
+<CENTER>
+<IMG SRC="2d-tria.jpg" ALIGN="CENTER" WIDTH="80%"> 
+</CENTER>
+<p>
+
+<hr>
+
+<CENTER>
+<IMG SRC="3d-tria.jpg" ALIGN="CENTER" WIDTH="80%"> 
+</CENTER>
+<p>
+
+<hr>
+
+<p>
+Some of the data is only  useful if an object is  a cell. For example,
+neighborship is only accessible for cells,  while faces (e.g. lines in
+2D) can't access their neighbors (neither the  adjacent cells, nor the
+other   faces it touches).    Therefore, the CellAccessor classes  are
+derived from whatever  object a cell  is in the respective  dimension,
+i.e. from lines  in 1D, from quads  in 2D,  and  so on. 
+</p>
+
+
+
+<a name="tria-typedefs"></a>
+<H4>
+Typedefs of the Triangulation class to iterators and accessors
+</H4>
+
+<p>
+The <CODE>Triangulation<1></CODE> class declares the following data
+types which involve accessors:
+<PRE>
+    typedef TriaRawIterator   <1,CellAccessor<1> >    raw_line_iterator;
+    typedef TriaIterator      <1,CellAccessor<1> >        line_iterator;
+    typedef TriaActiveIterator<1,CellAccessor<1> > active_line_iterator;
+
+    typedef    raw_line_iterator    raw_cell_iterator;
+    typedef        line_iterator        cell_iterator;
+    typedef active_line_iterator active_cell_iterator; 
+</PRE>
+Since lines are cells in one space dimension, all line iterators are
+cell iterators as well.
+</p>
+
+<p>
+In two space dimensions, the following types are declared by the
+<CODE>Triangulation<2></CODE> class:
+<PRE>
+    typedef TriaRawIterator   <2,TriaObjectAccessor<1, 2> >    raw_line_iterator;
+    typedef TriaIterator      <2,TriaObjectAccessor<1, 2> >        line_iterator;
+    typedef TriaActiveIterator<2,TriaObjectAccessor<1, 2> > active_line_iterator;
+    
+    typedef TriaRawIterator   <2,CellAccessor<2> >    raw_quad_iterator;
+    typedef TriaIterator      <2,CellAccessor<2> >        quad_iterator;
+    typedef TriaActiveIterator<2,CellAccessor<2> > active_quad_iterator;
+
+    typedef    raw_quad_iterator    raw_cell_iterator;
+    typedef        quad_iterator        cell_iterator;
+    typedef active_quad_iterator active_cell_iterator;
+
+    typedef    raw_line_iterator    raw_face_iterator;
+    typedef        line_iterator        face_iterator;
+    typedef active_line_iterator active_face_iterator;    
+</PRE>
+Since in this space dimension, quads are cells and lines are the faces
+of  cells, the  appropriate face  and  cell iterators  are declared in
+terms of the underlying accessor types.
+</p>
+
+
+<p>
+In three space dimensions, the following types are declared by the
+<CODE>Triangulation<3></CODE> class:
+<PRE>
+    typedef TriaRawIterator   <3,TriaObjectAccessor<1, 3> >    raw_line_iterator;
+    typedef TriaIterator      <3,TriaObjectAccessor<1, 3> >        line_iterator;
+    typedef TriaActiveIterator<3,TriaObjectAccessor<1, 3> > active_line_iterator;
+    
+    typedef TriaRawIterator   <3,TriaObjectAccessor<2, 3> >    raw_quad_iterator;
+    typedef TriaIterator      <3,TriaObjectAccessor<2, 3> >        quad_iterator;
+    typedef TriaActiveIterator<3,TriaObjectAccessor<2, 3> > active_quad_iterator;
+
+    typedef TriaRawIterator   <3,CellAccessor<3> >    raw_hex_iterator;
+    typedef TriaIterator      <3,CellAccessor<3> >        hex_iterator;
+    typedef TriaActiveIterator<3,CellAccessor<3> > active_hex_iterator;
+
+    typedef    raw_hex_iterator    raw_cell_iterator;
+    typedef        hex_iterator        cell_iterator;
+    typedef active_hex_iterator active_cell_iterator;
+
+    typedef    raw_quad_iterator    raw_face_iterator;
+    typedef        quad_iterator        face_iterator;
+    typedef active_quad_iterator active_face_iterator;    
+</PRE>
+Since in this space dimension, hexes are cells and quads are the faces
+of  cells, the  appropriate face  and  cell iterators  are declared in
+terms of the underlying accessor types.
+</p>
+
+
+
+<a name="tria-functions"></a>
+<h4>Functions offered by triangulation accessors</h4>
+
+<p>
+We briefly state a short list of the functions offered by the
+triangulation accessors. For a more complete discussion of these
+functions, please refer to the online 
+<a href="../../documentation.html" target="body">API
+documentation of the `grid' classes</a>. These functions can be
+accessed by <code>iterator->function()</code> if <code>iterator</code>
+is a cell-, face-, hex-, quad-, or line-iterator. Some functions are
+not available for all iterator types, which is noted for the
+individual entries.
+</p>
+
+<dl>
+  <dt><em>
+  level ()
+  </em></dt>
+
+  <dd>
+  Return the hierarchical refinement level on 
+  which this object lives.
+  </dd>
+
+
+  <dt><em>
+  index ()
+  </em></dt>
+
+  <dd>
+  Return the index within the hierarchical refinement level on 
+  which this object lives.
+  </dd>
+
+
+  <dt><em>
+  get_triangulation ()
+  </em></dt>
+
+  <dd>
+  Return a reference to the triangulation to which this object belongs.
+  </dd>
+
+
+  <dt><em>
+  vertex_index (vertex_number)
+  </em></dt>
+
+  <dd>
+  Return the global index of one of the vertices of this object.
+  </dd>
+
+
+  <dt><em>
+  vertex (vertex_number)
+  </em></dt>
+
+  <dd>
+  Return the position of the respective vertex in space.
+  </dd>
+
+
+  <dt><em>
+  used ()
+  </em></dt>
+
+  <dd>
+  Return whether the object is used. The return value is
+  <code>true</code> for all iterators that are either normal iterators
+  or active iterators, only raw iterators can return
+  <code>false</code>. Since raw iterators are only used in the
+  interiors of the library, you will not usually need this function.
+  </dd>
+
+
+  <dt><em>
+  set_used () / clear_used ()
+  </em></dt>
+
+  <dd>
+  Set or clear the flag that describes whether the object is used by
+  the triangulation. Only for internal use.
+  </dd>
+
+
+  <dt><em>
+  user_flag_set ()
+  </em></dt>
+
+  <dd>
+  Return whether the user flag is set.
+  </dd>
+
+
+  <dt><em>
+  set_user_flag () / clear_user_flag ()
+  </em></dt>
+
+  <dd>
+  Set or clear the flag that might be used by a user to indicate that
+  something should happen with this object.
+  </dd>
+
+
+  <dt><em>
+  recursively_set_user_flag () / recursively_clear_user_flag ()
+  </em></dt>
+
+  <dd>
+  Set or clear the user flag for this cell and all its descendants.
+  </dd>
+
+
+  <dt><em>
+  user_pointer ()
+  </em></dt>
+
+  <dd>
+  Query the pointer belonging to this object which may be used by
+  the user to store additional information with this object.
+  </dd>
+
+
+  <dt><em>
+  set_user_pointer () / clear_user_pointer ()
+  </em></dt>
+
+  <dd>
+  Set or clear a pointer belonging to this object which may be used by
+  the user to store additional information with this object.
+  </dd>
+
+
+  <dt><em>
+  child (child_number)
+  </em></dt>
+
+  <dd>
+  Return an iterator to one of the children of this object.
+  </dd>
+
+
+  <dt><em>
+  child_index (child_number)
+  </em></dt>
+
+  <dd>
+  Return the index of the child within the next finer level of the
+  triangulation. 
+  </dd>
+
+
+  <dt><em>
+  set_children (index), clear_children ()
+  </em></dt>
+
+  <dd>
+  Only for internal use.
+  </dd>
+
+
+  <dt><em>
+  has_children ()
+  </em></dt>
+
+  <dd>
+  Return whether an object has children, i.e. whether it is further
+  refined. If it has children, then it is not active.
+  </dd>
+
+
+  <dt><em>
+  max_refinement_depth ()
+  </em></dt>
+
+  <dd>
+  Return how often this cell or one of its children is refined.
+  </dd>
+
+
+  <dt><em>
+  boundary_indicator
+  </em></dt>
+
+  <dd>
+  Return the number of the boundary at which this object lies, if the
+  object has a dimension less than the space dimension.
+  </dd>
+
+
+  <dt><em>
+  set_boundary_indicator (boundary_id)
+  </em></dt>
+
+  <dd>
+  Set the number of the boundary to which this object belongs.
+  </dd>
+
+
+  <dt><em>
+  at_boundary ()
+  </em></dt>
+
+  <dd>
+  Return whether this object is at the boundary (if the dimension of
+  the object is less than the space dimension), or one of its faces is
+  at the boundary for cells.
+  </dd>
+
+
+  <dt><em>
+  has_boundary_lines ()
+  </em></dt>
+
+  <dd>
+  Return whether one of the lines bounding this cell is at the
+  boundary. For 1d and 2d this is equivalent to <em>at_boundary</em>,
+  in 3d, there are cases where bounding lines of a hex are at the
+  boundary, while the faces are in the interior. (Only for cell
+  iterators.)
+  </dd>
+
+
+  <dt><em>
+  diameter ()
+  </em></dt>
+
+  <dd>
+  Return the diameter of the object.
+  </dd>
+
+
+  <dt><em>
+  center ()
+  </em></dt>
+
+  <dd>
+  Return the coordinates of the center of the object.
+  </dd>
+
+
+  <dt><em>
+  barycenter ()
+  </em></dt>
+
+  <dd>
+  Return the coordinates of the barycenter of the object.
+  </dd>
+
+
+  <dt><em>
+  measure ()
+  </em></dt>
+
+  <dd>
+  Return the length, area, or volume of an object, depending on the
+  dimension of the object.
+  </dd>
+
+
+  <dt><em>
+  point_inside (point)
+  </em></dt>
+
+  <dd>
+  Return whether the given point is inside this cell, or rather the
+  (bi-, tri-)linearly mapped image of the unit cell with the vertices
+  of this cell. (Only for cell iterators.)
+  </dd>
+
+
+  <dt><em>
+  number_of_children ()
+  </em></dt>
+
+  <dd>
+  Accumulated number of children and their children.
+  </dd>
+
+
+  <dt><em>
+  line (line_number)
+  </em></dt>
+
+  <dd>
+  Return an iterator to one of the bounding lines of this object. (Only
+  for iterators to quadrilaterals and hexahedra.)
+  </dd>
+
+
+  <dt><em>
+  line_index (line_number)
+  </em></dt>
+
+  <dd>
+  Return the index of one of the bounding lines of this object. The
+  level index is the same as that of the present object. (Only
+  for iterators to quadrilaterals and hexahedra.)
+  </dd>
+
+
+  <dt><em>
+  quad (quad_number)
+  </em></dt>
+
+  <dd>
+  Return an iterator to one of the bounding quadrilaterals of this
+  object. (Only for iterators to hexahedra.)
+  </dd>
+
+
+  <dt><em>
+  line_index (line_number)
+  </em></dt>
+
+  <dd>
+  Return the index of one of the bounding quadrilaterals of this
+  object. The level index is the same as that of the present
+  object. (Only for iterators to hexahedra.)
+  </dd>
+
+
+  <dt><em>
+  neighbor (neighbor_number)
+  </em></dt>
+
+  <dd>
+  Return iterator to one of the neighbors. (Only for cell iterators.)
+  </dd>
+
+
+  <dt><em>
+  neighbor_index (neighbor_number) / neighbor_level (neighbor_number)
+  </em></dt>
+
+  <dd>
+  Return number and level of one of the neighbors. (Only for cell
+  iterators.)
+  </dd>
+
+
+  <dt><em>
+  set_neighbor ()
+  </em></dt>
+
+  <dd>
+  Set a neighbor. Only for internal use. (Only for cell iterators.)
+  </dd>
+
+
+  <dt><em>
+  neighbor_of_neighbor (neighbor_number)
+  </em></dt>
+
+  <dd>
+  Return the how-manyth neighbor the present cell is of the neighbor
+  specified by the argument. (Only for cell iterators.)
+  </dd>
+
+
+  <dt><em>
+  at_boundary (face_number)
+  </em></dt>
+
+  <dd>
+  Return whether this cell's given face is at the boundary. (Only for
+  cell iterators.)
+  </dd>
+
+
+  <dt><em>
+  refine_flag_set ()
+  </em></dt>
+
+  <dd>
+  Return whether the refinement flag is set or not for the present
+  cell. (Only for cell iterators.)
+  </dd>
+
+
+  <dt><em>
+  set_refine_flag () / clear_refine_flag ()
+  </em></dt>
+
+  <dd>
+  Set/clear the flag indicating refinement. (Only for cell iterators.)
+  </dd>
+
+
+  <dt><em>
+  coarsen_flag_set ()
+  </em></dt>
+
+  <dd>
+  Query whether the flag indicating coarsening is set for this
+  object. (Only for cell iterators.)
+  </dd>
+
+
+  <dt><em>
+  set_coarsen_flag () / claer_coarsen_flag ()
+  </em></dt>
+
+  <dd>
+  Set/clear the flag indicating coarsening. (Only for cell iterators.)
+  </dd>
+
+
+  <dt><em>
+  face (face_number)
+  </em></dt>
+
+  <dd>
+  Return an iterator to one of the faces of this cell, if dimension is
+  greater than one. (Only for cell iterators.)
+  </dd>
+
+
+  <dt><em>
+  material_id ()
+  </em></dt>
+
+  <dd>
+  Return the material number of this cell. (Only for cell iterators.)
+  </dd>
+
+
+  <dt><em>
+  set_material_id (id)
+  </em></dt>
+
+  <dd>
+  Set the material number of this cell. (Only for cell iterators.)
+  </dd>
+
+
+  <dt><em>
+  active ()
+  </em></dt>
+
+  <dd>
+  Return whether this cell is active, i.e. has no children. (Only for
+  cell iterators.)
+  </dd>
+</dl>
+
+
+
+<a name="dof-accessors"></a>
+<H3>
+The degree of freedom accessor hierarchy
+</H3>
+
+<p>
+The DoFAccessor classes    provide access to  the   degree  of freedom
+information associated  with  cells,   lines, etc.   The   inheritance
+relationship is much the    same  as for the   triangulation  accessor
+classes, as can  be seen from the  following  pictures.
+
+<hr>
+
+<CENTER>
+<IMG SRC="1d-dof.jpg" ALIGN="CENTER" WIDTH="80%"> 
+</CENTER>
+<p>
+
+
+<hr>
+
+<CENTER>
+<IMG SRC="2d-dof.jpg" ALIGN="CENTER" WIDTH="80%"> 
+</CENTER>
+<p>
+
+
+<hr>
+
+<CENTER>
+<IMG SRC="3d-dof.jpg" ALIGN="CENTER" WIDTH="80%"> 
+</CENTER>
+<p>
+
+<hr>
+
+<p>
+The main difference to the triangulation accessor hierarchy is that we
+want the DoF accessors to provide the information about the degrees of
+freedom, but for convenience also that of the triangulation. This way,
+we can get all the information from one object rather than needing two
+which  work in  parallel, and  the  class hierarchy  shown above  does
+exactly this.
+</p>
+
+<p>
+For the named reason, it is necessary to derive the
+<code>DoFObjectAccessor&lt;1,dim&gt;</code> from the
+<code>TriaObjectAccessor&lt;1,dim&gt;</code> class of the
+triangulation accessor hierarchy, as well as the
+<code>DoFObjectAccessor&lt;2,dim&gt;</code> from the
+<code>TriaObjectAccessor&lt;2,dim&gt;</code>. However, we would also
+like to include the functionality added by the CellAccessor class;
+this is done through some template magic: when in one space dimension,
+the <code>DoFObjectAccessor&lt;1,1&gt;</code> is derived from
+CellAccessor&lt;1&gt;, while when in higher dimensions, it is derived
+from <code>DoFObjectAccessor&lt;1,dim&gt;</code>; the same applies for
+the <code>DoFObjectAccessor&lt;2,dim&gt;</code> class.  Note that this
+way, CellAccessor is always a base class to DoFCellAccessor and the
+inheritance lattice is dimension dependant; the exact way of achieving
+this is complicated but not of interest here.
+</p>
+
+
+<a name="dof-typedefs"></a>
+<H4>
+Typedefs of the DoFHandler class to iterators and accessors
+</H4>
+
+<p>
+The typedefs done by the DoFHandler class are much alike those done by
+the Triangulation class. They could be summarized as follows:
+</p>
+
+<p>
+For one space dimension:
+<PRE>
+    typedef TriaRawIterator   <1,DoFCellAccessor<1> >    raw_line_iterator;
+    typedef TriaIterator      <1,DoFCellAccessor<1> >        line_iterator;
+    typedef TriaActiveIterator<1,DoFCellAccessor<1> > active_line_iterator;
+
+    typedef    raw_line_iterator    raw_cell_iterator;
+    typedef        line_iterator        cell_iterator;
+    typedef active_line_iterator active_cell_iterator; 
+</PRE>
+Since lines are cells in one space dimension, all line iterators are
+cell iterators as well.
+</p>
+
+<p>
+For two space dimensions:
+<PRE>
+    typedef TriaRawIterator   <2,DoFObjectAccessor<1, 2> >    raw_line_iterator;
+    typedef TriaIterator      <2,DoFObjectAccessor<1, 2> >        line_iterator;
+    typedef TriaActiveIterator<2,DoFObjectAccessor<1, 2> > active_line_iterator;
+    
+    typedef TriaRawIterator   <2,DoFCellAccessor<2> >    raw_quad_iterator;
+    typedef TriaIterator      <2,DoFCellAccessor<2> >        quad_iterator;
+    typedef TriaActiveIterator<2,DoFCellAccessor<2> > active_quad_iterator;
+
+    typedef    raw_quad_iterator    raw_cell_iterator;
+    typedef        quad_iterator        cell_iterator;
+    typedef active_quad_iterator active_cell_iterator;
+
+    typedef    raw_line_iterator    raw_face_iterator;
+    typedef        line_iterator        face_iterator;
+    typedef active_line_iterator active_face_iterator;    
+</PRE>
+</p>
+
+<p>
+For three space dimensions:
+<PRE>
+    typedef TriaRawIterator   <3,DoFObjectAccessor<1, 3> >    raw_line_iterator;
+    typedef TriaIterator      <3,DoFObjectAccessor<1, 3> >        line_iterator;
+    typedef TriaActiveIterator<3,DoFObjectAccessor<1, 3> > active_line_iterator;
+
+    typedef TriaRawIterator   <3,DoFObjectAccessor<2, 3> >    raw_quad_iterator;
+    typedef TriaIterator      <3,DoFObjectAccessor<2, 3> >        quad_iterator;
+    typedef TriaActiveIterator<3,DoFObjectAccessor<2, 3> > active_quad_iterator;
+
+    typedef TriaRawIterator   <3,DoFCellAccessor<3> >         raw_hex_iterator;
+    typedef TriaIterator      <3,DoFCellAccessor<3> >             hex_iterator;
+    typedef TriaActiveIterator<3,DoFCellAccessor<3> >      active_hex_iterator;
+
+    typedef    raw_hex_iterator    raw_cell_iterator;
+    typedef        hex_iterator        cell_iterator;
+    typedef active_hex_iterator active_cell_iterator;
+
+    typedef    raw_quad_iterator    raw_face_iterator;
+    typedef        quad_iterator        face_iterator;
+    typedef active_quad_iterator active_face_iterator;    
+</PRE>
+</p>
+
+
+
+<a name="dof-functions"></a>
+<h4>Functions offered by degree of freedom accessors</h4>
+
+<p>
+Since degree of freedom accessors are derived from triangulation
+accessors, they inherit the functionality of these accessors, but add
+some of their own. We only list the additional functionality
+below. For a full reference, including data types of parameters and
+return values, please refer to the general
+<a href="../../documentation.html" target="body">API
+documentation of the `DoF' classes</a>.
+</p>
+
+
+<dl>
+  <dt><em>
+  dof_index (dof_number)
+  </em></dt>
+
+  <dd>
+  Return the global index of one of the DoFs on this object.
+  </dd>
+
+
+  <dt><em>
+  set_dof_index (dof_number, index)
+  </em></dt>
+
+  <dd>
+  Set the index of a DoF. Only for internal use.
+  </dd>
+
+
+  <dt><em>
+  vertex_dof_index (vertex_number, dof_number)
+  </em></dt>
+
+  <dd>
+  Return the index of one of the DoFs on one of the vertices of this
+  object.
+  </dd>
+
+
+  <dt><em>
+  set_vertex_dof_index (...)
+  </em></dt>
+
+  <dd>
+  Set the vertex DoF index. Only for internal use.
+  </dd>
+
+
+  <dt><em>
+  get_dof_indices (vector_of_indices)
+  </em></dt>
+
+  <dd>
+  Return a vector of the indices of the DoFs on this object.
+  </dd>
+
+
+  <dt><em>
+  get_dof_values (global_values, local_values)
+  </em></dt>
+
+  <dd>
+  Extract and return the values of the DoFs on this object from a data
+  vector defined on all DoFs.
+  </dd>
+
+
+  <dt><em>
+  set_dof_values (local_values, global_values)
+  </em></dt>
+
+  <dd>
+  Reverse operation: take values of DoFs on this object, and set them
+  into a global data vector.
+  </dd>
+
+
+  <dt><em>
+  distribute_local_to_global (local_source, global_destination)  
+  </em></dt>
+
+  <dd>
+  Add the elements of local_source, defining values of the degrees of
+  freedom on this object, to the elements of the global data
+  vector. The two parameters may be either vectors or matrices.
+  </dd>
+
+
+  <dt><em>
+  get_interpolated_dof_values (global_values, local_interpolation)
+  </em></dt>
+
+  <dd>
+  Interpolate the global field to this cell. If this cell is active,
+  then this is the restriction of the global field to this cell,
+  but when this cell is not active then it is the interpolation of the
+  restriction of the field to the child cells and the interpolation to
+  the present one. (For cell iterators only.)
+  </dd>
+
+
+  <dt><em>
+  set_dof_values_by_interpolation (local_values, global_interpolation)
+  </em></dt>
+  
+  <dd>
+  Inverse operation: interpolate the local values to the children (if
+  this cell is not active) and set the respective values in the global
+  vector. (For cell iterators only.)
+  </dd>
+</dl>
+
+
+<HR>
+
+<div ALIGN="RIGHT">
+Wolfgang Bangerth, 1998, 1999, 2000
+</div>
+<p>&nbsp;</P></BODY>
+</HTML>
+
+
+
+</BODY>
+</HTML>
+

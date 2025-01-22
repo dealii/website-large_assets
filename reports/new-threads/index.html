@@ -1,0 +1,1059 @@
+
+<H1 ALIGN="CENTER">
+A short description of the new threading scheme
+</H1>
+
+
+<p ALIGN="CENTER">
+  <strong> Wolfgang Bangerth, May 2003</strong>
+</p>
+
+
+<p>
+Since the first deal.II report on
+multithreading was written in 2000 (see the list of deal.II
+publications),
+we have put in place a new
+implementation of the threading scheme (the first release to contain it is
+4.0). The new scheme can do all that you could do before, so the report is in a
+sense still valid, but it describes a syntax that is no more used. We will here
+briefly describe this syntax as well as some considerations that guided us
+while implementing it. For general questions on multithreading, how programs
+that use it must look like, and for pitfalls to watch out for, please still
+refer to the report mentioned above.
+</p>
+
+<p>
+We note that since this report was written, there has been another
+incarnation of support for multicore machines, namely by using the
+Threading Building Blocks and tasks. The documentation module on
+parallel computing, available through the modules page of the deal.II
+manual, explains this new direction in more detail.
+</p>
+
+
+<h3>1. Rationale and Introduction</h3>
+
+
+<p>
+POSIX and other thread libraries only allow functions as thread entry
+points that satisfy the signature
+<code><pre>
+  void *  (*)  (void *)
+</pre></code>
+and starting threads involves a clumsy syntax. Thread entry points
+with another signature need to be "wrapped", i.e. their arguments need
+to be stored in a structure, and we need a function with above
+signature that can be used to "unpack" the arguments and call the
+desired function. This basically forces us to have one such structure
+and entry function for each function signature that we want to start a
+thread with.
+</p>
+
+<p>
+The first incarnations of the threading scheme in deal.II already got a long
+way towards making this simpler, by hiding the thread entry points, the packing
+and unpacking behind a layer of carefully crafted templates. It allowed you to
+call (almost) any function with arbitrary argument lists on a new thread,
+except that functions that returned values were not allowed. Implementing such
+a template scheme is not simple, since, besides simplicity to use, it has to
+take care of the lifetimes of objects that need to be synchronised across
+threads, and in particular since templates do not allow for functions with
+arbitrary numbers of arguments - they need to be repeated for every number of
+arguments, which makes implementation tedious. Nevertheless, the old scheme was
+very much usable.
+</p>
+
+<p>
+However, the old scheme had a number of shortcomings:
+<ul>
+<li>The implementation did not allow for functions returning
+  anything but <code>void</code>. We want to be able to call everything
+  on a new thread that can also be called on the present one.</li>
+<li>Thread objects could not be copied. Rather, thread ids were put into a
+thread manager object that took care of it, but handling single, or even
+detached threads was not too convenient.</li>
+<li>The general syntax for calling a function on a new thread was a
+  little clumsy and not intuitive.</li>
+</ul>
+</p>
+
+<p>
+Regarding the last point, note that any other function is called by
+<code><pre>
+    f(arg1, arg2);
+    obj.f(arg1, arg2);
+</pre></code>
+Ideally, the following syntax for starting any function on a new
+thread would be nice:
+<code><pre>
+    spawn f(arg1, arg2);
+    spawn obj.f(arg1,arg2);
+</pre></code>
+This syntax is not possible in C++, but the following syntax is,
+making it relatively clear what the intent of the statement is:
+<code><pre>
+    spawn (f)(arg1, arg2);
+    spawn (obj, &Class::f)(arg1,arg2);
+</pre></code>
+This is the syntax we will want to achieve (except for the fact that the
+<code>spawn</code> function is in a namespace <code>Threads</code>, just like
+all other entities described here).
+</p>
+
+<p>
+This text will discuss the details that are needed to implement
+this syntax, as well as the following points:
+<ul>
+<li>Overloading <code>spawn(</code>) so as to take unbound functions and member
+functions, whether virtual or static. Of course, every call needs to be type
+safe, i.e. the exact
+  same conversions of arguments need to be performed as in a usual call (except
+  for two additional copies that are necessary).</li>
+<li><code>spawn()</code> needs to return a value that allows us to identify,
+and join a thread. The syntax for this will be
+<code><pre>
+      Thread&lt;&gt; t = spawn(f)(arg1, arg2);
+      t.join ();
+</pre></code>
+  If we don't save the return value of <code>spawn()</code>, as in the examples
+  above, then we have just created a detached thread.</li>
+<li>Return values: if <code>f()</code> returns a value, say, an integer, then
+we want to be able to retrieve it once the thread has finished:
+<code><pre>
+      Thread&lt;int&gt; t = spawn (f)(1., 1.);
+      t.join ();
+      int i = t.return_value ();
+</pre></code>
+  This requires some care when functions return references, but some
+  template magic will save us. Another special case are functions that
+  return <code>void</code>.</li>
+<li>Thread groups: if threads are created inside a loop, we will want to
+  put all of them into a <code>ThreadGroup</code> object, and wait for them
+  collectively, rather than one-by-one.</li>
+</ul>
+</p>
+
+<p>
+Basically, the syntax above is all you need to know. It is as simple as
+that. The rest of this text, in comparison is very much of technical nature. I
+took most of it from a technical discussion I had with the author of the
+threading scheme in boost, William Kempf. It describes the way the threading
+scheme is implemented, the meaning of the various classes, etc. It probably
+doesn't give you much insight how to <em>use</em> it, but should explain in
+reasonable detail how it <em>works</em>. For more examples of use, take a look
+at a number of the example programs in deal.II, or at some places in the
+library itself.
+</p>
+
+
+<p>
+This paper is divided into the following parts:
+<ol>
+<li>This introduction</li>
+<li>Entities (functions, classes) that are used by both and that
+   describe the newly created thread</li>
+<li>Entities that are used on the calling thread</li>
+<li>Entities that are used to create a thread</li>
+<li>Tool classes</li>
+<li>Open problems</li>
+<li>Further suggestions</li>
+</ol>
+We will present the main parts of the code in the text. The implementation is
+in the library; all entities that
+are not to be used by the user are placed into a namespace
+<code>internal</code>, those to be used are in a namespace
+<code>Threads</code>. The implementation uses Boost's shared_ptr. Some parts of
+the implementation parallel the
+boost::function library, but they are small and taylored to the
+particular purpose at hand; in particular, they make heavy use of the
+boost::tuple library. We note that the code has in some places already evolved
+a little bit beyond the state of this paper, but the main ideas are all to be
+found still.
+</p>
+
+
+
+<h3>2. Entities that describe threads</h3>
+
+
+<p>
+Each thread that has been created is described by exactly one object
+of type <code>thread_description&lt;RT&gt;</code>, where <code>RT</code> here and in the
+sequel will always denote the return type of the function being called
+on a new thread. The <code>thread_description</code> class is split into an
+operating system dependent base class, and an independent derived
+class. The base class is responsible for abstracting the OS
+interface to the functions creating, joining, killing, and signalling
+threads. For POSIX threads, this class looks as follows:
+</p>
+
+<code><pre>
+    struct thread_description_base {
+      private:
+        pthread_t                 pt;
+        mutable volatile bool     was_joined;
+        mutable boost::mutex      join_mutex;
+        mutable boost::condition  join_condition;
+
+      public:
+        thread_description_base () : was_joined (false) {};
+        virtual ~thread_description_base () { /* ... */ };
+
+        void create (void * (*p) (void *), void *d) {
+          pthread_create (&pt, 0, p, d);
+        };
+
+        void join () const {
+          if (was_joined)
+            return;
+          boost::mutex::scoped_lock lock(join_mutex);
+          if (!was_joined)
+              pthread_join (pt, 0);
+          was_joined = true;
+        };
+    };
+</pre></code>
+
+<p>
+<code>join()</code> can be called more than once and uses Schmidt's thread-safe
+double-checking pattern for speed. There could be additional functions
+<code>kill()</code> or <code>send_signal()</code>, but these are not presently
+implemented.
+</p>
+
+<p>
+In the destructor, we need to make sure that a thread is joined at
+least once in its lifetime, or if not that it is being detached
+(otherwise, we create the thread equivalent of a zombie process, which
+will lead to a resource leak in the operating system). This is a
+little tricky, since the destructor might be called while the thread
+is still running; comments in the code explain how we work around
+this.
+</p>
+
+<p>
+The <code>thread_description&lt;RT&gt;</code> class is derived from this base
+class:
+<code><pre>
+    template &lt;typename RT&gt;
+    struct thread_description : public thread_description_base
+    {
+        return_value&lt;RT&gt; ret_val;
+    };
+</pre></code>
+</p>
+
+<p>
+Its only purpose is to provide a place of storage for the return
+value of the function being called on the new thread. Since functions
+might return references or just nothing at all, the <code>return_value</code>
+template is used. It is described below in the section on Tool
+Classes. The return value will be set on exit of the function being
+called.
+</p>
+
+<p>
+As mentioned, there is exactly one <code>thread_description&lt;RT&gt;</code>
+object per created thread. It is accessed using <code>boost::shared_ptr</code>
+objects, and references are held from each <code>Thread&lt;RT&gt;</code> object
+for this thread as
+well as from a wrapper function on the new thread. The object is thus
+deleted, when all <code>Thread&lt;RT&gt;</code> objects for this thread have gone out of
+scope (or point to different threads) and the thread itself has
+finished; this is the appropriate time.
+</p>
+
+
+
+<h3>3. Entities that are used on the calling thread</h3>
+
+
+<p>
+On the calling thread, we basically use the <code>Thread&lt;RT&gt;</code>
+class, <code>ThreadGroup&lt;RT&gt;</code> class, and <code>spawn</code>
+function. The <code>Thread&lt;RT&gt;</code> class has the following
+implementation:
+</p>
+
+<code><pre>
+    template &lt;typename RT = void&gt;
+    class Thread {
+      public:
+        Thread () {};
+        Thread (const boost::shared_ptr&lt;thread_description&lt;RT&gt; &gt; &td)
+          : thread_description (td) {};
+
+        void join () const { thread_description-&gt;join (); };
+
+        RT return_value () {
+          join ();
+          return thread_description-&gt;ret_val.get();
+        };
+
+        bool operator == (const thread &t) {
+          return thread_description == t.thread_description;
+        };
+
+      private:
+        boost::shared_ptr&lt;thread_description&lt;RT&gt; &gt; thread_description;
+    };
+</pre></code>
+
+<p>
+Copy constructor and <code>operator=</code> are generated automatically by the
+compiler. Note that asking for the <code>return_value</code> automatically waits
+for the thread to finish, and that for this it is helpful that we can
+call <code>join()</code> more than once on the thread description object. The
+<code>return_value()</code> function also makes use of the fact that if <code>RT=void</code>,
+then the return construct is still valid. Furthermore, since this is
+the most common case, the template argument of the thread class has a
+default of <code>void</code>.
+</p>
+
+<p>
+The <code>ThreadGroup</code> class is a container distributing calls to its
+member functions to all its elements. Elements are added using
+<code>operator+=</code>, and they are stored using a
+<code>std::vector</code>. (A <code>std::set</code> would be more appropriate,
+but then we would have to have <code>operator&lt;</code> for
+<code>Thread&lt;RT&gt;</code> objects.) It has the same default value for the
+template argument:
+</p>
+
+<code><pre>
+    template &lt;typename RT = void&gt;
+    class ThreadGroup
+    {
+      public:
+        ThreadGroup & operator += (const Thread&lt;RT&gt; &t) {
+          threads.push_back (t);
+	  return *this;
+        };
+
+        void join_all () const {
+          for (typename std::vector&lt;Thread&lt;RT&gt; &gt;::const_iterator
+                 t=threads.begin(); t!=threads.end(); ++t)
+            t-&gt;join ();
+        };
+
+      private:
+        std::vector&lt;Thread&lt;RT&gt; &gt; threads;
+    };
+</pre></code>
+
+<p>
+Since objects of type <code>Thread&lt;RT&gt;</code> are freely copyable, there
+is no need
+to provide an index operator for <code>ThreadGroup</code>; if you need to index
+its elements (for example to get at the return value), use
+<code>std::vector&lt;Thread&lt;RT&gt; &gt;</code>.
+</p>
+
+<p>
+Finally, there are overloads of the <code>spawn</code> template, for unbound
+functions, as well as <code>const</code> and non-<code>const</code> member
+functions. We only show them for unary member functions:
+<code><pre>
+    template &lt;typename RT, typename C, typename Arg1&gt;
+    mem_fun_encapsulator&lt;RT,C,boost::tuple&lt;Arg1&gt; &gt;
+    spawn (C &c, RT (C::*fun_ptr)(Arg1)) {
+      return mem_fun_encapsulator&lt;RT, C, boost::tuple&lt;Arg1&gt; &gt; (c,fun_ptr);
+    }
+
+    template &lt;typename RT, typename C, typename Arg1&gt;
+    mem_fun_encapsulator&lt;RT,const C,boost::tuple&lt;Arg1&gt; &gt;
+    spawn (const C &c, RT (C::*fun_ptr)(Arg1) const) {
+      return mem_fun_encapsulator&lt;RT, const C, boost::tuple&lt;Arg1&gt; &gt; (c,fun_ptr);
+    }
+</pre></code>
+</p>
+
+<p>
+Note that we need two overloaded versions, for <code>const</code> and
+non-<code>const</code>
+member functions. Both create an intermediate object (in the
+<code>internal</code>
+namespace) that will accept arguments in place of the function being
+called on the new thread, make sure a new thread is created, copy the
+arguments to the new thread's stack, and only then return. The exact
+mechanism is described in the next section.
+</p>
+
+<p>
+In the implementation, we have to repeat the functions above for
+binary, ternary, ... member functions, and also for unbound member
+functions. One would really like to have something also for objects other than
+pointers to (member-)functions that provide an
+<code>operator()</code>. However, this doesn't seem to be possible if
+<code>operator()</code> returns something other than <code>void</code> or takes
+arguments. This
+would need some kind of typeof-operator which is not standard C++. See the
+discussion in the Open Problems section.
+</p>
+
+
+<h3>4. Entities that are used to create a thread</h3>
+
+
+<p>
+In this section, we describe the gory details of copying arguments
+from the stack of the old thread to the stack of the new one. These
+details are not necessary to <em>use</em> the <code>spawn()</code> functions,
+so are probably boring and may be skipped.
+</p>
+
+<p>
+The basic idea is the following: <code>spawn()</code> returns an object and provides
+it with the address of the function to be called, and in the case of a
+member function with the address of an object. <code>mem_fun_encapsulator</code>
+looks like this:
+</p>
+
+<code><pre>
+    template &lt;typename RT, typename C, typename ArgList,
+              int length = boost::tuples::length&lt;ArgList&gt;::value&gt;
+    class mem_fun_encapsulator;
+
+    template &lt;typename RT, typename C, typename ArgList&gt;
+    class mem_fun_encapsulator&lt;RT,C,ArgList,1&gt; {
+        typedef typename mem_fun_ptr&lt;RT,C,ArgList&gt;::type MemFunPtr;
+
+      public:
+        mem_fun_encapsulator (C &c, MemFunPtr mem_fun_ptr)
+            : c (c), mem_fun_ptr(mem_fun_ptr) {};
+
+        Thread&lt;RT&gt;
+        operator() (typename boost::tuples::element&lt;0,ArgList&gt;::type arg1) {
+            return mem_fun_wrapper&lt;RT,C,ArgList&gt; (mem_fun_ptr, c,
+                                                  boost::tie(arg1)).fire_up ();
+        };
+
+      private:
+        C         &c;
+        MemFunPtr  mem_fun_ptr;
+    };
+</pre></code>
+
+<p>
+(Note how the default value specification of the last template
+argument automatically redirects uses with three template parameters
+to the correct four-parameter specialization, even though the general
+template is never used.)
+</p>
+
+<p>
+The constructor stores the two addresses. If one calls
+<code><pre>
+    spawn(obj, &C::f) (42);
+</pre></code>
+the next thing that is invoked is the <code>operator()</code> of this class. It
+takes the argument(s), creates a temporary with the two addresses and
+a reference to the argument (that's what <code>boost::tie</code>) does, and calls
+<code>fire_up()</code> on this temporary. <code>fire_up</code> has all the information, and does
+the work. Note that we will not pass references to the individual
+arguments, but bind them all together with <code>boost::tie</code>, so that we need
+not have different versions of the <code>mem_fun_wrapper</code> class for different
+numbers of arguments. (However, we need a separate partial
+specialization of the <code>mem_fun_encapsulator</code> class for each number of
+function arguments.) The <code>tie_args</code> template is used to make a version
+of the <code>ArgList</code> type with all reference types; it is described below.
+</p>
+
+<p>
+The next question, of course, is how <code>mem_fun_wrapper</code> looks like. Let
+us first consider the base class that it has in common with
+<code>fun_wrapper</code>, the wrapping class for non-member function objects:
+<code><pre>
+    template &lt;typename RT, typename EntryPointClass&gt;
+    struct wrapper_base {
+        Thread&lt;RT&gt; fire_up () {
+          thread_descriptor
+            = DescriptionPointer(new typename thread_description&lt;RT&gt;());
+
+          boost::mutex::scoped_lock lock (mutex);
+          thread_descriptor-&gt;create (&EntryPointClass::entry_point,
+                                        (void *)this);
+          condition.wait (lock);
+
+          return thread_descriptor;
+        }
+
+      protected:
+        typedef boost::shared_ptr&lt;thread_description&lt;RT&gt; &gt;
+        DescriptionPointer;
+
+        DescriptionPointer thread_descriptor;
+
+        mutable boost::mutex     mutex;
+        mutable boost::condition condition;
+    };
+</pre></code>
+<p>
+<code>fire_up</code> is the only real function; it creates a thread descriptor
+object, and calls it with a pointer to the present object, and the address of
+the starting point is <code>EntryPointClass::entry_point</code>, where
+<code>EntryPoint</code> is the name of a class that implements this thread
+starting function and is passed as a template argument to
+<code>wrapper_base</code>.
+Before it starts the new thread, it acquires a mutex and
+afterwards wait until a condition is signalled before it finishes by
+using the thread descriptor object to generate a <code>Thread&lt;RT&gt;</code>
+object.
+</p>
+
+<p>
+The magic happens in the derived class:
+<code><pre>
+    template &lt;typename RT, class C, typename ArgList&gt;
+    struct mem_fun_wrapper
+       : public wrapper_base&lt;RT, mem_fun_wrapper&lt;RT,C,ArgList&gt; &gt;
+    {
+        typedef typename mem_fun_ptr&lt;RT,C,ArgList&gt;::type MemFunPtr;
+        typedef typename tie_args&lt;ArgList&gt;::type ArgReferences;
+        mem_fun_wrapper (MemFunPtr            mem_fun_ptr,
+                         C                   &c,
+                         const ArgReferences &args)
+                        : c (c),
+                          mem_fun_ptr (mem_fun_ptr),
+                          args (args)  {};
+      private:
+        mem_fun_wrapper ();
+        mem_fun_wrapper (const mem_fun_wrapper &);
+
+        C            &c;
+        MemFunPtr     mem_fun_ptr;
+        ArgReferences args;
+
+        static void * entry_point (void *arg)
+          {
+            const wrapper_base&lt;RT&gt; *w
+              = reinterpret_cast&lt;const wrapper_base&lt;RT&gt;*&gt; (arg);
+            const mem_fun_wrapper *wrapper
+              = static_cast&lt;const mem_fun_wrapper*&gt; (w);
+            MemFunPtr mem_fun_ptr = wrapper-&gt;mem_fun_ptr;
+            C        &c           = wrapper-&gt;c;
+            ArgList   args        = wrapper-&gt;args;
+
+            boost::shared_ptr&lt;thread_description&lt;RT&gt; &gt;
+              thread_descriptor  = wrapper-&gt;thread_descriptor;
+
+            {
+              boost::mutex::scoped_lock lock (wrapper-&gt;mutex);
+              wrapper-&gt;condition.notify_one ();
+            }
+
+            call (mem_fun_ptr, c, args, thread_descriptor-&gt;ret_val);
+
+            return 0;
+          };
+    };
+</pre></code>
+</p>
+
+<p>
+Note in particular, how this class passes itself as second template parameter
+to the base class, enabling the latter to call the
+<code>mem_fun_wrapper::entry_point</code> function as entry point to the new
+thread. When the fire_up function in the base
+class is called, it creates a new thread that starts inside this
+function, and the argument given to it is the address of the
+<code>wrapper_base</code> object. The first thing the <code>entry_point</code> function does, is
+to cast back this address to the real object's type (it knows the real
+type of the object, since the address of this function has been handed
+down through the template magic), then copies the address of
+the object to work with and the address of the member function to be
+called from the stack of the old thread to the stack of this new
+thread. It then also copies the arguments, which so far have been held
+only as references, but copies them by value. Next, it gets the
+address of the return thread descriptor, and with it the address of
+the return value (the <code>shared_ptr</code> will also make sure that the object
+lives long enough). The part in braces signals the condition to the
+old thread, which hangs in the <code>fire_up</code> function: the arguments have
+been copied, and the old thread can go on, eventually also destroying
+objects that have been copied by value. Finally, it calls the
+requested function with the proper arguments through a generic
+interface (described in the section on tools) and sets the return
+value of the thread.
+</p>
+
+
+<h3>5. Tool classes</h3>
+
+
+<p>
+In the implementation above, some tool classes have been used. These
+are briefly described here.
+</p>
+
+<h4>a) The <code>return_value&lt;T&gt;</code> class template</h4>
+
+<p>
+This class stores a value of type <code>T</code> if <code>T</code> is not a
+reference or <code>void</code>. It offers <code>get()</code> and
+<code>set()</code> functions that get and set the value. If <code>T</code> is a
+reference type, then <code>set()</code> is obviously not possible since
+references cannot be rebound after construction time. The class therefore
+stores a pointer, and <code>set()</code> sets the pointer to the object the
+reference references. <code>get()</code> then returns the reference again. If
+<code>T</code> is <code>void</code>, then the class is empty and there is only
+a <code>get()<code> function that returns <code>void</code>.
+</p>
+
+<code><pre>
+    template &lt;typename RT&gt; struct return_value
+    {
+      private:
+        RT value;
+      public:
+        RT get () const { return value; }
+        void set (RT v) { value = v; }
+    };
+
+    template &lt;typename RT&gt; struct return_value&lt;RT &&gt;
+    {
+      private:
+        RT * value;
+      public:
+        RT & get () const { return *value; }
+        void set (RT & v) { value = &v; }
+    };
+
+    template &lt;&gt; struct return_value&lt;void&gt; {
+        static void get () {};
+    };
+</pre></code>
+
+
+<h4>b) The <code>call</code> function templates</h4>
+
+<p>
+The <code>call</code> function templates take a function pointer, an argument list
+tuple, and the address of the return value object, and call the
+function with these arguments. Since we have to unpack the argument
+list, we have to dispatch to different functions, depending on the
+number of arguments, in the usual way:
+</p>
+
+<code><pre>
+    template &lt;int&gt; struct int2type;
+
+    template &lt;typename RT, typename PFun, typename ArgList&gt;
+    static void call (PFun     fun_ptr,
+                      ArgList &arg_list,
+                      return_value&lt;RT&gt; &ret_val)
+    {
+      Caller&lt;RT&gt;::do_call (fun_ptr, arg_list, ret_val,
+                           int2type&lt;boost::tuples::length&lt;ArgList&gt;::value&gt;());
+    };
+</pre></code>
+
+<p>
+The <code>Caller</code> class has the following member functions:
+
+<code><pre>
+    template &lt;typename RT&gt; struct Caller
+    {
+        template &lt;typename PFun, typename ArgList&gt;
+        static void do_call (PFun     fun_ptr,
+                             ArgList &arg_list,
+                             return_value&lt;RT&gt; &ret_val,
+                             const int2type&lt;1&gt; &)
+        {  ret_val.set ((*fun_ptr) (arg_list.template get&lt;0&gt;()));  };
+
+        // likewise for int2type&lt;0&gt;, int2type&lt;2&gt;, ...
+    };
+</pre></code>
+</p>
+
+
+<p>
+There is a specialization <code>Caller&lt;void&gt;</code> that does not set a return
+value, and for each call and <code>do_call</code> function there is a second
+function for member function pointers that takes an object as
+additional argument.
+</p>
+
+
+<h4>c) <code>mem_fun_ptr</code></h4>
+
+<p>
+In order to form a pointer to member function for both cases of <code>const</code>
+and non-<code>const</code> member functions, we need a simple tool:
+<code><pre>
+    template &lt;typename RT, class C, typename ArgList,
+              int length = boost::tuples::length&lt;ArgList&gt;::value&gt;
+    struct mem_fun_ptr_helper;
+
+    template &lt;typename RT, class C, typename ArgList&gt;
+    struct mem_fun_ptr_helper&lt;RT, C, ArgList, 1&gt;
+    {
+        typedef RT (C::*type) (typename boost::tuples::element&lt;0,ArgList&gt;::type);
+    };
+
+    template &lt;typename RT, class C, typename ArgList&gt;
+    struct mem_fun_ptr_helper&lt;RT, const C, ArgList, 1&gt;
+    {
+        typedef RT (C::*type) (typename boost::tuples::element&lt;0,ArgList&gt;::type) const;
+    };
+
+    template &lt;typename RT, class C, typename ArgList&gt;
+    struct mem_fun_ptr
+    {
+        typedef typename mem_fun_ptr_helper&lt;RT,C,ArgList&gt;::type type;
+    };
+</pre></code>
+</p>
+
+<p>
+Note that if the second template argument is a <code>const C</code>, then we mark
+the member function <code>const</code>. The two templates for <code>mem_fun_ptr_helper</code>
+have to be repeated for every number of arguments that we have in
+mind. Note also that the specification of the default argument in the
+declaration of the general template of <code>mem_fun_ptr_helper</code> saves us
+from recomputing it in <code>mem_fun_ptr</code>.
+</p>
+
+
+
+<h4>d) <code>add_reference</code> for tuples</h4>
+
+<p>
+The following classes add references to the elements of a tuple, thus
+providing the type equivalent of the return value of the <code>boost::tie</code>
+functions. There are probably ways inside boost's tuples library to do
+this, but I couldn't locate this.
+<code><pre>
+    template &lt;int N, typename Tuple&gt;
+    struct add_reference_to_Nth
+    {
+        typedef typename boost::tuples::element&lt;N,Tuple&gt;::type ArgType;
+        typedef typename boost::add_reference&lt;ArgType&gt;::type type;
+    };
+
+    template &lt;typename Tuple, int = boost::tuples::length&lt;Tuple&gt;::value&gt;
+    struct tie_args_helper;
+
+    template &lt;typename Tuple&gt;
+    struct tie_args_helper&lt;Tuple,1&gt;
+    {
+        typedef
+        boost::tuple&lt;typename add_reference_to_Nth&lt;0,Tuple&gt;::type&gt;
+        type;
+    };
+
+    template &lt;typename Tuple&gt;
+    struct tie_args
+    {
+        typedef typename tie_args_helper&lt;Tuple&gt;::type type;
+    };
+</pre></code>
+</p>
+<p>
+The <code>tie_args_helper</code> class is repeated for every number of elements we
+want to use.
+</p>
+
+
+
+<h3>6. Open Problems</h3>
+
+
+<h4>a) A variable lifetime problem</h4>
+<p>
+The only unsolved semantic problem I am aware of at present is the
+following: if we have a function
+<code><pre>
+    void f(const int &amp;i);
+</pre></code>
+then this function can be called as
+<code><pre>
+    f(1);
+</pre></code>
+i.e. the compiler creates a temporary and passes its address to
+<code>f()</code>. When invoking <code>f()</code> on a new thread, however, as in
+<code><pre>
+    spawn (f)(1);
+</pre></code>
+then it is only guaranteed that the call to <code>spawn()</code> does not return
+before the new thread is started and has copied the arguments to
+<code>f()</code>. However, the argument is only the reference to the temporary, not
+its value. <code>f()</code> will thus likely observe corrupted values for its
+argument. On the other hand, copying the value is no option either, of
+course.  Since to the author's best knowledge the language does not
+provide means to avoid taking the address of a temporary, there is
+presently no way to avoid this problem. Suggestions for healing it are
+very welcome.
+</p>
+
+
+<h4>b) Forwarding of <code>operator()</code></h4>
+<p>
+Above, we have not defined an overload of <code>spawn</code> for functor-like
+objects, even though that would be desirable. One way to do so would be
+<code><pre>
+    template &lt;typename C&gt;
+    mem_fun_encapsulator&lt;void,C,boost::tuple&lt;&gt; &gt;
+    spawn (C &c) {
+      return spawn (c, &C::operator());
+    }
+</pre></code>
+This only works if <code>operator()</code> satisfies the signature
+<code><pre>
+    struct C {    void operator() ();  };
+</pre></code>
+</p>
+<p>
+We could add another overload if <code>operator()</code> is
+<code>const</code>. However, what one
+would like is an overload for more general signatures. Unfortunately,
+this requires that we can infer type and number of arguments and
+return type of <code>operator()</code> at the time we declare the return type of
+above overload of <code>spawn()</code>. I have not found a way to infer this
+information just by using the template parameter <code>C</code> -- it just seems
+not possible. What would work if it were supported by compilers is a
+kind of <code>typeof</code>-operator:
+<code><pre>
+    template &lt;typename C&gt;
+    typeof(spawn(c,&C::operator()))          // **
+    spawn (C &c) {
+      return spawn (c, &C::operator());
+    }
+</pre></code>
+</p>
+<p>
+When seeing the declaration, the compiler would automatically check
+which version of the overloaded <code>spawn()</code> function it would call, and
+correspondingly take the return type. gcc does support the <code>typeof</code>
+keyword, but even present CVS snapshots generate an internal compiler
+error on this construct.
+</p>
+
+<h4>c) Using a memory based scheme rather than condition variables</h4>
+<p>
+The scheme using mutices and condition variables to synchronise
+calling and called thread seems expensive. A simpler approach would be
+to replace it by letting the creating thread generate an object on the
+heap that holds copies of the arguments (instead of references as
+presently), spawn the new thread and just go on without any
+synchronisation.
+</p>
+
+<p>
+The calling thread would then not have to copy the arguments onto its
+local stack and signal to the calling thread. It would only have to
+delete the memory after the call to the user-supplied function
+returns. Apart from replacing <code>ArgReferences</code> by
+<code>ArgList</code> in some places,
+the scheme would basically just replace <code>*_encapsulator::operator()</code>,
+<code>fire_up</code>, and <code>thread_entry_point</code>:
+</p>
+
+<code><pre>
+      thread&lt;RT&gt;
+      operator() (typename boost::tuples::element&lt;0,ArgList&gt;::type arg1) {
+        return (new mem_fun_wrapper&lt;RT,C,ArgList&gt; (mem_fun_ptr, c,
+                                                   boost::tie(arg1)))-&gt;fire_up ();
+      };
+
+      thread&lt;RT&gt; fire_up () {
+        thread_descriptor
+          = DescriptionPointer(new typename detail::thread_description&lt;RT&gt;());
+
+        thread_descriptor-&gt;create (entry_point, (void *)this);
+        // no synchronisation here
+        return thread_descriptor;
+      }
+
+      static void * entry_point (void *arg) {
+        wrapper_base&lt;RT&gt; *w       = reinterpret_cast&lt;wrapper_base&lt;RT&gt;*&gt; (arg);
+        fun_wrapper      *wrapper = static_cast&lt;fun_wrapper*&gt; (w);
+        // no copying here; no synchronisation necessary
+        detail::call (wrapper-&gt;fun_ptr, wrapper-&gt;args,
+                      wrapper-&gt;thread_descriptor-&gt;ret_val);
+        // delete memory
+        delete wrapper;
+        return 0;
+      }
+</pre></code>
+
+<p>
+The perceived simplicity without using mutices and condition variable
+might be deceptive, however, since memory allocation and deallocation
+requires locking and unlocking mutices as well, and is generally not a
+cheap operation.
+</p>
+
+<p>
+However, the main problem is that I get spurious segmentation faults
+with this on my Linux box. These always happen inside the memory
+allocation and deallocation functions in the C++ and C language
+support libraries. I believe that these are not bugs in the
+application, but in the language runtime. However, my motivation to
+debug multithreading problems in the libc is very limited; for
+reference, valgrind 1.94 does not show accesses to uninitialized or
+already freed memory portions, even for runs that eventually crash
+later on.
+</p>
+
+
+<h3>7. Alternative Suggestions</h3>
+
+
+<p>
+Here are some additional suggestions for discussion:
+</p>
+
+<h4>a) Conversions between return values</h4>
+
+<p>
+If <code>f()</code> is a function returning an integer, then the following is
+legal:
+<code><pre>
+    double d = f(arg1, arg2);
+</pre></code>
+The question, then, would be: do we want to allow conversions between
+<code>Thread&lt;double&gt;</code> and <code>Thread&lt;int&gt;</code> objects?
+And do we want to allow a
+conversion from <code>Thread&lt;T&gt;</code> to <code>Thread&lt;void&gt;</code>
+(i.e.: casting away the return value)?
+</p>
+
+<p>
+Since one can still assign the return value of the thread to a double,
+<code><pre>
+    double d = thread.return_value();
+</pre></code>
+the only real merit in allowing conversions is in putting threads with
+different return value types into a <code>ThreadGroup</code>:
+<code><pre>
+    double f1 ();
+    int    f2 ();
+
+    ThreadTroup&lt;double&gt; tg;
+    tg += spawn(f1)();
+    tg += spawn(f2)();    // convert Thread&lt;int&gt; to Thread&lt;double&gt;
+    tg.join_all ();
+</pre></code>
+</p>
+<p>
+Being able to do this is probably only syntactic sugar, except for the
+case where we are not interested in the return values of all threads,
+i.e. the conversion <code>Thread&lt;T&gt; -&gt; Thread&lt;void&gt;</code> seems
+like the only one that is really worth it.
+</p>
+
+<p>
+I have made some initial experiments with implementing general
+conversions. The main problem is that we need to allow conversion
+chains:
+<code><pre>
+    thread&lt;double&gt; t1 = spawn (f)(arg1, arg2);
+    thread&lt;int&gt;    t2 = t1;
+    thread&lt;double&gt; t3 = t2;
+</pre></code>
+</p>
+<p>
+If <code>f()</code> returns 1.5, then <code>t3.return_value()</code> needs to
+return 1.0. I believe that such conversions could be implemented, by adding the
+types in the chain into a <code>boost::tuple</code> of growing length, and writing
+a function that converts a value of the first type of this tuple to
+the second, to the third, ..., to the last type in the tuple. However,
+a plethora of internal compiler errors has scared me off doing more
+experiments in this direction.
+</p>
+
+
+<h4>b) Conversions between class types I</h4>
+
+<p>
+When you have a class hierarchy like
+<code><pre>
+    struct B { void f(); };
+    struct D : public B {};
+</pre></code>
+then calling
+<code><pre>
+    spawn (D(), &B::f);
+</pre></code>
+fails for gcc (but succeeds with Intel's icc). Presumably, gcc is
+right: template arguments must match exactly, and <code>D()</code> is of type
+<code>D</code>, while <code>&B::f</code> leads to a class type of
+<code>B</code>. There is no function template for spawn for which this call can
+match without a derived-to-base conversion. We could now change the template
+<code><pre>
+    template &lt;typename RT, typename C, typename Arg1&gt;
+    mem_fun_encapsulator&lt;RT,C,boost::tuple&lt;Arg1&gt; &gt;
+    spawn (C &c, RT (C::*fun_ptr)(Arg1)) {
+      return mem_fun_encapsulator&lt;RT, C, boost::tuple&lt;Arg1&gt; &gt; (c,fun_ptr);
+    }
+</pre></code>
+into
+<code><pre>
+    template &lt;typename RT, typename A, typename C, typename Arg1&gt;
+    mem_fun_encapsulator&lt;RT,C,boost::tuple&lt;Arg1&gt; &gt;
+    spawn (A &a, RT (C::*fun_ptr)(Arg1)) {
+      return mem_fun_encapsulator&lt;RT, C, boost::tuple&lt;Arg1&gt; &gt; (a,fun_ptr);
+    }
+</pre></code>
+i.e. introduce another class template <code>A</code> for the type of the
+object. Since the arguments of the constructor to the
+<code>mem_fun_encapsulator</code> object are known, the compiler would perform a
+derived-to-base conversion for object <code>a</code> if necessary. I don't know
+whether this is desirable, in particular since also other conversions
+could happen here that one would not want (in the extreme case
+generating a temporary)..
+</p>
+
+
+<h4>c) Conversions between class types II</h4>
+
+<p>
+When one writes
+<code><pre>
+    spawn (this, &X::f)
+</pre></code>
+one gets an error that "'this' is not convertible to type X&". One has
+to write <code>*this<code> instead. It would be simple to have another set of
+overloads of <code>spawn()</code> that accepts a pointer instead of a reference,
+and simply forwards to the existing function. This is just for the
+lazy people, probably, but it is a common case.
+</p>
+
+
+<h4>d) Catching exceptions</h4>
+
+<p>
+When a function on a new thread throws an exception, it only
+propagates up to one of the two <code>entry_point()</code> functions, then vanishes
+into the run-time system and kills the program. Ideally, we would have
+a way to pass it over to the main thread. This, however, would need
+some support from the language. Basically, we would need two
+operations:
+<ul>
+<li>clone an exception without knowing its type; we could then in the
+  <code>entry_point</code> function catch it and stack it somewhere, just like we
+  do for the return value</li>
+<li>back on the main thread, the <code>Thread::join()</code> function must raise this
+  stored exception if there was one, again without knowing its type.</li>
+</ul>
+Given how exceptions are implemented usually, the machinery for these
+operations is probably there, but is not exported to the user through
+the run-time environment. Thus, an implementation of such ideas has to
+wait for changes in the language specification.
+</p>
+
+
+<HR>
+
+<div ALIGN="RIGHT">
+Wolfgang Bangerth, 2003
+</div>
+<p>&nbsp;</P></BODY>
+</HTML>
+
+
+
+</BODY>
+</HTML>
+
