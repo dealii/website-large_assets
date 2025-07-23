@@ -6,7 +6,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="http://www.dealii.org">
+          <a class="navbar-brand" href="http://dealii.org">
           <img src="/pictures/clover57.png"
            height="20"
            alt="dealii logo"> dealii.org</a>
@@ -69,7 +69,7 @@
                 Development sources</div></li>
                 <li><hr></li>
                 <li><a href="https://github.com/dealii/dealii">github repository</a></li>
-                <li><a href="https://www.dealii.org/developer/doxygen/deal.II/recent_changes.html">Recent changes</a></li>
+                <li><a href="https://dealii.org/developer/doxygen/deal.II/recent_changes.html">Recent changes</a></li>
                 <li><hr></li>
                 <li><a href="/developer/readme.html">README</a></li>
                 <li><a href="/download.html#svn">Download</a></li>
@@ -117,7 +117,7 @@
                 <li><a href="https://www.precice.org">preCICE</a></li>
                 <li><a href="http://www.prisms-center.org/#/ctools/software">PRISMS</a></li>
                 <li><hr></li>
-                <li><a href="https://www.dealii.org/code-gallery.html">Code Gallery</a></li>
+                <li><a href="https://dealii.org/code-gallery.html">Code Gallery</a></li>
               </ul>
             </li>
           </ul>

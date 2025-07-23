@@ -5,7 +5,7 @@ This directory contains asset files for the deal.II homepage.
 
 The deal.II library is copyrighted by the deal.II authors. This term refers
 to the people listed in the file `AUTHORS` and in the [authors
-list](https://www.dealii.org/authors.html) on the webpage.
+list](https://dealii.org/authors.html) on the webpage.
 
 The deal.II library is free software; it is licensed under the <b>GNU
 Lesser General Public License v2.1 or later</b>. The deal.II authors are in
